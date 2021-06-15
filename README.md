@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./.github/phantasma-gopher.jpg" width="300px" alt="logo">
+<img src="./.github/phantasma-go.jpg" width="300px" alt="logo">
 </p>
 <p align="center">
   <b>Go</b> SDK for the <a href="https://phantasma.io">Phantasma</a> blockchain.
