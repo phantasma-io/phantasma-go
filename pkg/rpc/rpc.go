@@ -28,10 +28,9 @@ func NewRPCMainnet() PhantasmaRPC {
 	return NewRPC("http://207.148.17.86:7077/rpc")
 }
 
-// NewRPCTestnet returns a new RPC client
+// NewRPCTestnet returns a new testnet RPC client
 func NewRPCTestnet() PhantasmaRPC {
-	//TODO testnet node
-	return NewRPC("http://207.148.17.86:7077/rpc")
+	return NewRPC("http://testnet.phantasma.io:7077/rpc")
 }
 
 // NewRPC returns a new RPC client
@@ -175,6 +174,50 @@ func (rpc PhantasmaRPC) GetTransaction(txHash string) (resp.TransactionResult, e
 
 	if err := checkError(err, result.Error); err != nil {
 		return resp.TransactionResult{}, err
+	}
+
+	err = result.GetObject(&txResult)
+	if err != nil {
+		errorResult := resp.ErrorResult{}
+		err = result.GetObject(&errorResult)
+		if err != nil {
+			return txResult, err
+		}
+
+		return txResult, fmt.Errorf(errorResult.Error)
+	}
+	return txResult, nil
+}
+
+// GetTokens comment
+func (rpc PhantasmaRPC) GetTokens(extended bool) ([]resp.TokenResult, error) {
+	var txResult []resp.TokenResult
+	result, err := rpc.client.Call("getTokens", extended)
+
+	if err := checkError(err, result.Error); err != nil {
+		return []resp.TokenResult{}, err
+	}
+
+	err = result.GetObject(&txResult)
+	if err != nil {
+		errorResult := resp.ErrorResult{}
+		err = result.GetObject(&errorResult)
+		if err != nil {
+			return txResult, err
+		}
+
+		return txResult, fmt.Errorf(errorResult.Error)
+	}
+	return txResult, nil
+}
+
+// GetToken comment
+func (rpc PhantasmaRPC) GetToken(symbol string, extended bool) (resp.TokenResult, error) {
+	var txResult resp.TokenResult
+	result, err := rpc.client.Call("getToken", symbol, extended)
+
+	if err := checkError(err, result.Error); err != nil {
+		return resp.TokenResult{}, err
 	}
 
 	err = result.GetObject(&txResult)
