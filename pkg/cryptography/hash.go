@@ -5,9 +5,9 @@ import (
 	"encoding/hex"
 	"strings"
 
-	"github.com/phantasma.io/phantasma-go/pkg/io"
-	"github.com/phantasma.io/phantasma-go/pkg/util"
-	hashing "github.com/phantasma.io/phantasma-go/pkg/util/hashing"
+	"github.com/phantasma-io/phantasma-go/pkg/io"
+	"github.com/phantasma-io/phantasma-go/pkg/util"
+	hashing "github.com/phantasma-io/phantasma-go/pkg/util/hashing"
 )
 
 // TODO Hash.Null

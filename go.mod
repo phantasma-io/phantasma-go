@@ -1,4 +1,4 @@
-module github.com/phantasma.io/phantasma-go
+module github.com/phantasma-io/phantasma-go
 
 go 1.16
 

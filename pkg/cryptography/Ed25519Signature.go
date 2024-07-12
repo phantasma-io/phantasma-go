@@ -3,7 +3,7 @@ package cryptography
 import (
 	"crypto/ed25519"
 
-	"github.com/phantasma.io/phantasma-go/pkg/io"
+	"github.com/phantasma-io/phantasma-go/pkg/io"
 )
 
 // Ed25519Signature struct

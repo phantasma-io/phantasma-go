@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	chain "github.com/phantasma.io/phantasma-go/pkg/blockchain"
-	crypto "github.com/phantasma.io/phantasma-go/pkg/cryptography"
-	"github.com/phantasma.io/phantasma-go/pkg/rpc"
-	scriptbuilder "github.com/phantasma.io/phantasma-go/pkg/vm/script_builder"
+	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
+	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
+	"github.com/phantasma-io/phantasma-go/pkg/rpc"
+	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
 
 func main() {

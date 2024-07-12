@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/mr-tron/base58"
-	hash "github.com/phantasma.io/phantasma-go/pkg/util/hashing"
+	hash "github.com/phantasma-io/phantasma-go/pkg/util/hashing"
 )
 
 // CheckDecode implements a base58-encoded string decoding with hash-based

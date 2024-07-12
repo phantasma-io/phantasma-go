@@ -3,8 +3,8 @@ package blockchain
 import (
 	"testing"
 
-	"github.com/phantasma.io/phantasma-go/pkg/cryptography"
-	"github.com/phantasma.io/phantasma-go/pkg/io"
+	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
+	"github.com/phantasma-io/phantasma-go/pkg/io"
 	"github.com/stretchr/testify/assert"
 )
 

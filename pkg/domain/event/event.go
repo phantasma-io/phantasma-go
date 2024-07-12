@@ -4,8 +4,8 @@ import (
 	"encoding/hex"
 	"math/big"
 
-	crypto "github.com/phantasma.io/phantasma-go/pkg/cryptography"
-	"github.com/phantasma.io/phantasma-go/pkg/io"
+	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
+	"github.com/phantasma-io/phantasma-go/pkg/io"
 )
 
 type EventKind uint

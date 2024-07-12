@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/phantasma.io/phantasma-go/pkg/io"
-	"github.com/phantasma.io/phantasma-go/pkg/vm"
+	"github.com/phantasma-io/phantasma-go/pkg/io"
+	"github.com/phantasma-io/phantasma-go/pkg/vm"
 )
 
 type ScriptBuilder struct {

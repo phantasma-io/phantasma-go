@@ -1,6 +1,6 @@
 package cryptography
 
-import "github.com/phantasma.io/phantasma-go/pkg/io"
+import "github.com/phantasma-io/phantasma-go/pkg/io"
 
 // SignatureKind type
 type SignatureKind uint

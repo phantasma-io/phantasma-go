@@ -1,10 +1,10 @@
 package blockchain
 
 import (
-	"github.com/phantasma.io/phantasma-go/pkg/cryptography"
-	crypto "github.com/phantasma.io/phantasma-go/pkg/cryptography"
-	"github.com/phantasma.io/phantasma-go/pkg/io"
-	hashing "github.com/phantasma.io/phantasma-go/pkg/util/hashing"
+	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
+	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
+	"github.com/phantasma-io/phantasma-go/pkg/io"
+	hashing "github.com/phantasma-io/phantasma-go/pkg/util/hashing"
 )
 
 // Transaction a

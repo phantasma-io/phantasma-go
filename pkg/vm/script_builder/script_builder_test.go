@@ -3,7 +3,7 @@ package scriptbuilder_test
 import (
 	"testing"
 
-	scriptbuilder "github.com/phantasma.io/phantasma-go/pkg/vm/script_builder"
+	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
 
 func TestNewScript(t *testing.T) {

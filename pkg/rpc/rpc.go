@@ -3,7 +3,7 @@ package rpc
 import (
 	"fmt"
 
-	resp "github.com/phantasma.io/phantasma-go/pkg/rpc/response"
+	resp "github.com/phantasma-io/phantasma-go/pkg/rpc/response"
 	"github.com/ybbus/jsonrpc/v2"
 )
 
