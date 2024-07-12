@@ -25,12 +25,12 @@ type PhantasmaRPC struct {
 
 // NewRPCMainnet returns a new RPC client
 func NewRPCMainnet() PhantasmaRPC {
-	return NewRPC("http://207.148.17.86:7077/rpc")
+	return NewRPC("https://pharpc1.phantasma.info/rpc")
 }
 
 // NewRPCTestnet returns a new testnet RPC client
 func NewRPCTestnet() PhantasmaRPC {
-	return NewRPC("http://testnet.phantasma.io:7077/rpc")
+	return NewRPC("https://testnet.phantasma.info/rpc")
 }
 
 // NewRPC returns a new RPC client
