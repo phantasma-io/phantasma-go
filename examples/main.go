@@ -28,7 +28,7 @@ func main() {
 		EndScript()
 
 	// build tx
-	expire := time.Now().Add(time.Second * time.Duration(30)).Unix()
+	expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
 	tx := chain.NewTransaction("mainnet", "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
 
 	// sign tx
