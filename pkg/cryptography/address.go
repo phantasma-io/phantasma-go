@@ -35,6 +35,11 @@ type Address struct {
 	kind AddressKind
 }
 
+var Null []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0}
+
 // NewAddress returns a new Address object
 func NewAddress(pubKey []byte) Address {
 
@@ -62,6 +67,11 @@ func NewAddress(pubKey []byte) Address {
 	address.Text = prefix + base58.Encode(address.data)
 
 	return address
+}
+
+// NullAddress returns a new null Address object
+func NullAddress() Address {
+	return NewAddress(Null)
 }
 
 // FromString creates an instance of an Address from a string
@@ -169,6 +179,11 @@ func (a Address) String() string {
 // Bytes returns the data representing an address
 func (a Address) Bytes() []byte {
 	return a.data
+}
+
+// BytesPrefixed returns the data representing an address, including prefix required for binary serialization
+func (a Address) BytesPrefixed() []byte {
+	return bytes.Join([][]byte{{34}, a.data}, []byte{})
 }
 
 // Serialize implements ther Serializable interface

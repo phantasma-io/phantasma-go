@@ -1,10 +1,12 @@
 package scriptbuilder
 
-func (s ScriptBuilder) AllowGas(from, to string, gasPrice, gasLimit int) ScriptBuilder {
+import crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
+
+func (s ScriptBuilder) AllowGas(from, to crypto.Address, gasPrice, gasLimit int) ScriptBuilder {
 	return s.CallContract("gas", "AllowGas", from, to, gasPrice, gasLimit)
 }
 
-func (s ScriptBuilder) SpendGas(address string) ScriptBuilder {
+func (s ScriptBuilder) SpendGas(address crypto.Address) ScriptBuilder {
 	return s.CallContract("gas", "SpendGas", address)
 }
 

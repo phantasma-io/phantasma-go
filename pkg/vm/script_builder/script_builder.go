@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/io"
 	"github.com/phantasma-io/phantasma-go/pkg/vm"
 )
@@ -196,6 +197,8 @@ func (s ScriptBuilder) loadIntoReg(dstReg byte, arg interface{}) {
 		s.EmitLoadInt(dstReg, arg.(int))
 	case time.Time:
 		s.EmitLoadTime(dstReg, arg.(time.Time))
+	case crypto.Address:
+		s.EmitLoad(dstReg, arg.(crypto.Address).BytesPrefixed(), vm.Bytes)
 	//TODO array
 	default:
 		if arg != nil {

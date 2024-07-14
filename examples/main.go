@@ -22,9 +22,9 @@ func main() {
 
 	// build script
 	sb := scriptbuilder.BeginScript()
-	script := sb.AllowGas(kp.Address().String(), "", 100000, 21000).
+	script := sb.AllowGas(kp.Address(), crypto.NullAddress(), 100000, 21000).
 		TransferTokens("SOUL", kp.Address().String(), "ADD_RECEIVER_HERE", 100000000).
-		SpendGas(kp.Address().String()).
+		SpendGas(kp.Address()).
 		EndScript()
 
 	// build tx
