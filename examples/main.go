@@ -8,6 +8,7 @@ import (
 	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
 	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/rpc"
+	"github.com/phantasma-io/phantasma-go/pkg/util"
 	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
 
@@ -28,26 +29,40 @@ func main() {
 
 	// build tx
 	expire := time.Now().Add(time.Second * time.Duration(30)).Unix()
-	tx := chain.NewTransaction("mainnet", "main", script, uint32(expire), []byte("GO-SDK-v0.1"))
+	tx := chain.NewTransaction("mainnet", "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
 
 	// sign tx
 	tx.Sign(kp)
 
+	fmt.Println("Tx script: " + hex.EncodeToString(script))
+
 	// encode tx as hex
 	txHex := hex.EncodeToString(tx.Bytes(true))
+
+	fmt.Println("Tx: " + txHex)
+
 	client := rpc.NewRPCMainnet()
 	txHash, err := client.SendRawTransaction(txHex)
 	if err != nil {
-		panic("Broadcasting tx " + txHash + " failed!")
+		panic("Broadcasting tx failed! Error: " + err.Error())
+	} else {
+		if util.ErrorDetect(txHash) {
+			panic("Broadcasting tx failed! Error: " + txHash)
+		} else {
+			fmt.Println("Tx successfully broadcasted!")
+		}
 	}
-
-	fmt.Println("tx " + txHash + " successfully broadcasted!")
 
 	for {
 		txResult, _ := client.GetTransaction(txHash)
 		//if err != nil {
 		//	fmt.Println("err: " + err.Error())
 		//}
-		fmt.Println("txHeight: " + fmt.Sprint(txResult.Hash))
+		fmt.Println("Tx hash: " + fmt.Sprint(txResult.Hash))
+
+		if txResult.Hash != "" {
+			fmt.Println("Transaction was successfully minted, tx hash: " + fmt.Sprint(txResult.Hash))
+			break // Funds were transferred successfully
+		}
 	}
 }
