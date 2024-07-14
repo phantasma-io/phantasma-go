@@ -3,8 +3,10 @@ package rpc
 import (
 	"fmt"
 
+	"context"
+
+	"github.com/phantasma-io/phantasma-go/pkg/jsonrpc"
 	resp "github.com/phantasma-io/phantasma-go/pkg/rpc/response"
-	"github.com/ybbus/jsonrpc/v2"
 )
 
 // PhantasmaRPC struct
@@ -56,7 +58,7 @@ func checkError(err error, rpcError *jsonrpc.RPCError) error {
 // GetPlatforms comment
 func (rpc PhantasmaRPC) GetPlatforms() ([]resp.PlatformResult, error) {
 	var platforms []resp.PlatformResult
-	result, err := rpc.client.Call("getPlatforms", nil)
+	result, err := rpc.client.Call(context.Background(), "getPlatforms", nil)
 
 	if err := checkError(err, result.Error); err != nil {
 		return []resp.PlatformResult{}, err
@@ -73,7 +75,7 @@ func (rpc PhantasmaRPC) GetPlatforms() ([]resp.PlatformResult, error) {
 // GetAccounts takes a comma separated list of addresses
 func (rpc PhantasmaRPC) GetAccounts(addresses string) ([]resp.AccountResult, error) {
 	var accounts []resp.AccountResult
-	result, err := rpc.client.Call("getAccounts", addresses)
+	result, err := rpc.client.Call(context.Background(), "getAccounts", addresses)
 
 	if err := checkError(err, result.Error); err != nil {
 		return []resp.AccountResult{}, err
@@ -90,7 +92,7 @@ func (rpc PhantasmaRPC) GetAccounts(addresses string) ([]resp.AccountResult, err
 // LookupName comment
 func (rpc PhantasmaRPC) LookupName(name string) (string, error) {
 	var address string
-	result, err := rpc.client.Call("getAccount", address)
+	result, err := rpc.client.Call(context.Background(), "getAccount", address)
 
 	if err := checkError(err, result.Error); err != nil {
 		return "", err
@@ -107,7 +109,7 @@ func (rpc PhantasmaRPC) LookupName(name string) (string, error) {
 // GetAccount comment
 func (rpc PhantasmaRPC) GetAccount(address string) (resp.AccountResult, error) {
 	var account resp.AccountResult
-	result, err := rpc.client.Call("getAccount", address)
+	result, err := rpc.client.Call(context.Background(), "getAccount", address)
 
 	if err := checkError(err, result.Error); err != nil {
 		return resp.AccountResult{}, err
@@ -124,7 +126,7 @@ func (rpc PhantasmaRPC) GetAccount(address string) (resp.AccountResult, error) {
 // InvokeRawScript comment
 func (rpc PhantasmaRPC) InvokeRawScript(chain, script string) (resp.ScriptResult, error) {
 	scriptResult := resp.ScriptResult{}
-	result, err := rpc.client.Call("invokeRawScript", chain, script)
+	result, err := rpc.client.Call(context.Background(), "invokeRawScript", chain, script)
 
 	if err := checkError(err, result.Error); err != nil {
 		return resp.ScriptResult{}, err
@@ -147,7 +149,7 @@ func (rpc PhantasmaRPC) InvokeRawScript(chain, script string) (resp.ScriptResult
 // SendRawTransaction comment
 func (rpc PhantasmaRPC) SendRawTransaction(txData string) (string, error) {
 	var hash string
-	result, err := rpc.client.Call("sendRawTransaction", txData)
+	result, err := rpc.client.Call(context.Background(), "sendRawTransaction", txData)
 
 	if err := checkError(err, result.Error); err != nil {
 		return "", err
@@ -170,7 +172,7 @@ func (rpc PhantasmaRPC) SendRawTransaction(txData string) (string, error) {
 // GetTransaction comment
 func (rpc PhantasmaRPC) GetTransaction(txHash string) (resp.TransactionResult, error) {
 	var txResult resp.TransactionResult
-	result, err := rpc.client.Call("getTransaction", txHash)
+	result, err := rpc.client.Call(context.Background(), "getTransaction", txHash)
 
 	if err := checkError(err, result.Error); err != nil {
 		return resp.TransactionResult{}, err
@@ -192,7 +194,7 @@ func (rpc PhantasmaRPC) GetTransaction(txHash string) (resp.TransactionResult, e
 // GetTokens comment
 func (rpc PhantasmaRPC) GetTokens(extended bool) ([]resp.TokenResult, error) {
 	var txResult []resp.TokenResult
-	result, err := rpc.client.Call("getTokens", extended)
+	result, err := rpc.client.Call(context.Background(), "getTokens", extended)
 
 	if err := checkError(err, result.Error); err != nil {
 		return []resp.TokenResult{}, err
@@ -214,7 +216,7 @@ func (rpc PhantasmaRPC) GetTokens(extended bool) ([]resp.TokenResult, error) {
 // GetToken comment
 func (rpc PhantasmaRPC) GetToken(symbol string, extended bool) (resp.TokenResult, error) {
 	var txResult resp.TokenResult
-	result, err := rpc.client.Call("getToken", symbol, extended)
+	result, err := rpc.client.Call(context.Background(), "getToken", symbol, extended)
 
 	if err := checkError(err, result.Error); err != nil {
 		return resp.TokenResult{}, err
