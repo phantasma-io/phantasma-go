@@ -1,6 +1,7 @@
 package rpc_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/phantasma-io/phantasma-go/pkg/rpc"
@@ -15,6 +16,7 @@ func TestNewClient(t *testing.T) {
 func TestAccount(t *testing.T) {
 	client := rpc.NewRPCMainnet()
 	account, err := client.GetAccount("P2KA7yzB3uUncuAqP6tLut27iTKAC6ZTnAVM4myUuG57oQP")
+	fmt.Printf("account: %v\n", account)
 	assert.Nil(t, err)
 	assert.NotNil(t, account)
 }
