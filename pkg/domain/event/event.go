@@ -75,7 +75,7 @@ const (
 	Custom             EventKind = 64
 )
 
-var eventLookup = map[uint]string{
+var eventLookup = map[EventKind]string{
 	Unknown:            `Unknown`,
 	ChainCreate:        `ChainCreate`,
 	TokenCreate:        `TokenCreate`,
@@ -168,7 +168,7 @@ func (te TokenEventData) Serialize(writer io.BinWriter) {
 func (te TokenEventData) Deserialize(reader io.BinReader) {
 	te.Symbol = reader.ReadString()
 	var val big.Int
-	te.Value = val.SetBytes(reader.ReadVarBytes())
+	te.Value = *val.SetBytes(reader.ReadVarBytes())
 	te.ChainName = reader.ReadString()
 }
 
@@ -213,7 +213,7 @@ type Event struct {
 }
 
 func (e Event) String() string {
-	constLookup[e.Kind] + "/" + e.Contract + "@" + e.Address.String() + ":" + hex.EncodeToString(e.Data)
+	return eventLookup[e.Kind] + "/" + e.Contract + "@" + e.Address.String() + ":" + hex.EncodeToString(e.Data)
 }
 
 // Serialize implements ther Serializable interface
@@ -226,7 +226,7 @@ func (e Event) Serialize(writer io.BinWriter) {
 
 // Deserialize implements ther Serializable interface
 func (e Event) Deserialize(reader io.BinReader) {
-	e.Kind = reader.ReadB()
+	e.Kind = EventKind(reader.ReadU32LE())
 	e.Address.Deserialize(reader)
 	e.Contract = reader.ReadString()
 	e.Data = reader.ReadVarBytes()

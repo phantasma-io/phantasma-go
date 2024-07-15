@@ -205,7 +205,7 @@ func NewRequest(method string, params ...interface{}) *RPCRequest {
 // e.g. NewRequestWithID(123, "myMethod", "Alex", 35, true)
 func NewRequestWithID(id int, method string, params ...interface{}) *RPCRequest {
 	request := &RPCRequest{
-		ID:      string(id),
+		ID:      fmt.Sprint(id),
 		Method:  method,
 		Params:  Params(params...),
 		JSONRPC: jsonrpcVersion,
@@ -374,7 +374,7 @@ func NewClientWithOpts(endpoint string, opts *RPCClientOpts) RPCClient {
 func (client *rpcClient) Call(ctx context.Context, method string, params ...interface{}) (*RPCResponse, error) {
 
 	request := &RPCRequest{
-		ID:      string(client.defaultRequestID),
+		ID:      fmt.Sprint(client.defaultRequestID),
 		Method:  method,
 		Params:  Params(params...),
 		JSONRPC: jsonrpcVersion,
@@ -407,7 +407,7 @@ func (client *rpcClient) CallBatch(ctx context.Context, requests RPCRequests) (R
 	}
 
 	for i, req := range requests {
-		req.ID = string(i)
+		req.ID = fmt.Sprint(i)
 		req.JSONRPC = jsonrpcVersion
 	}
 
