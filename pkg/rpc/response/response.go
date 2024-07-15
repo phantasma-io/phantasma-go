@@ -164,6 +164,7 @@ type TransactionResult struct {
 	Script       string            `json:"script"`
 	Payload      string            `json:"payload"`
 	Events       []EventResult     `json:"events"`
+	State        string            `json:"state"`
 	Result       string            `json:"result"`
 	Fee          string            `json:"fee"`
 	Signatures   []SignatureResult `json:"signatures"`

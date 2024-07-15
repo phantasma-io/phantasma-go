@@ -50,7 +50,7 @@ func main() {
 		if util.ErrorDetect(txHash) {
 			panic("Broadcasting tx failed! Error: " + txHash)
 		} else {
-			fmt.Println("Tx successfully broadcasted!")
+			fmt.Println("Tx successfully broadcasted! Tx hash: " + txHash)
 		}
 	}
 
@@ -59,11 +59,15 @@ func main() {
 		//if err != nil {
 		//	fmt.Println("err: " + err.Error())
 		//}
-		fmt.Println("Tx hash: " + fmt.Sprint(txResult.Hash))
+		fmt.Println("Tx state: " + fmt.Sprint(txResult.State))
 
-		if txResult.Hash != "" {
+		if chain.TxStateIsSuccess(txResult.State) {
 			fmt.Println("Transaction was successfully minted, tx hash: " + fmt.Sprint(txResult.Hash))
 			break // Funds were transferred successfully
+		}
+		if chain.TxStateIsFault(txResult.State) {
+			fmt.Println("Transaction failed, tx hash: " + fmt.Sprint(txResult.Hash))
+			break // Funds were not transferred
 		}
 	}
 }

@@ -1,6 +1,8 @@
 package blockchain
 
 import (
+	"strings"
+
 	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/io"
@@ -167,6 +169,22 @@ func (tx *Transaction) Mine(difficulty int) {
 		tx.Payload[2] = byte((nonce >> 16) & 0xFF)
 		tx.Payload[3] = byte((nonce >> 24) & 0xFF)
 		tx.updateHash()
+	}
+}
+
+func TxStateIsSuccess(state string) bool {
+	if strings.ToUpper(state) == "HALT" {
+		return true
+	} else {
+		return false
+	}
+}
+
+func TxStateIsFault(state string) bool {
+	if strings.ToUpper(state) == "FAULT" {
+		return true
+	} else {
+		return false
 	}
 }
 
