@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"math/big"
 	"strconv"
 	"time"
 
@@ -94,6 +95,20 @@ func (s ScriptBuilder) EmitLoadTime(reg byte, toLoad time.Time) ScriptBuilder {
 func (s ScriptBuilder) EmitLoadInt(reg byte, toLoad int) ScriptBuilder {
 	str := strconv.Itoa(toLoad)
 	s.EmitLoadString(reg, str)
+	return s
+}
+
+func (s ScriptBuilder) EmitLoadNumberAsString(reg byte, toLoad big.Int) ScriptBuilder {
+	s.EmitLoadString(reg, toLoad.String())
+	return s
+}
+
+func (s ScriptBuilder) EmitLoadNumberAsBinary(reg byte, toLoad big.Int) ScriptBuilder {
+	b := toLoad.Bytes()
+	for i := 0; i < len(b)/2; i++ {
+		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
+	}
+	s.EmitLoad(reg, b, vm.Number)
 	return s
 }
 
@@ -195,6 +210,8 @@ func (s ScriptBuilder) loadIntoReg(dstReg byte, arg interface{}) {
 		s.EmitLoad(dstReg, arg.([]byte), vm.Bytes)
 	case int:
 		s.EmitLoadInt(dstReg, arg.(int))
+	case big.Int:
+		s.EmitLoadNumberAsString(dstReg, arg.(big.Int))
 	case time.Time:
 		s.EmitLoadTime(dstReg, arg.(time.Time))
 	case crypto.Address:
