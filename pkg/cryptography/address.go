@@ -173,6 +173,9 @@ func (a Address) Kind() AddressKind {
 
 // String creates the a base58 encoded representation of the address including the address prefix
 func (a Address) String() string {
+	if a.IsNull() {
+		return "NULL"
+	}
 	return a.Text
 }
 
