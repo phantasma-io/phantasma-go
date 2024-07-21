@@ -75,7 +75,7 @@ func (rpc PhantasmaRPC) GetPlatforms() ([]resp.PlatformResult, error) {
 // GetAccounts takes a comma separated list of addresses
 func (rpc PhantasmaRPC) GetAccounts(addresses string) ([]resp.AccountResult, error) {
 	var accounts []resp.AccountResult
-	result, err := rpc.client.Call(context.Background(), "getAccounts", addresses)
+	result, err := rpc.client.Call(context.Background(), "getAccounts", addresses, false)
 
 	if err := checkError(err, result.Error); err != nil {
 		return []resp.AccountResult{}, err
@@ -92,7 +92,7 @@ func (rpc PhantasmaRPC) GetAccounts(addresses string) ([]resp.AccountResult, err
 // LookupName comment
 func (rpc PhantasmaRPC) LookupName(name string) (string, error) {
 	var address string
-	result, err := rpc.client.Call(context.Background(), "getAccount", address)
+	result, err := rpc.client.Call(context.Background(), "getAccount", address, false)
 
 	if err := checkError(err, result.Error); err != nil {
 		return "", err
@@ -109,7 +109,7 @@ func (rpc PhantasmaRPC) LookupName(name string) (string, error) {
 // GetAccount comment
 func (rpc PhantasmaRPC) GetAccount(address string) (resp.AccountResult, error) {
 	var account resp.AccountResult
-	result, err := rpc.client.Call(context.Background(), "getAccount", address)
+	result, err := rpc.client.Call(context.Background(), "getAccount", address, false)
 
 	if err := checkError(err, result.Error); err != nil {
 		return resp.AccountResult{}, err

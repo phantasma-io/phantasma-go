@@ -117,7 +117,7 @@ type AccountResult struct {
 	Validator string          `json:"validator"`
 	Storage   StorageResult   `json:"storage"`
 	Balances  []BalanceResult `json:"balances"`
-	Txs       []string        `json:"txs"`
+	Txs       []string        `json:"txs"` // Deprecated, returned as an empty array by default. Use GetAddressTransactions() to get transactions for address
 }
 
 type AddressTransactionsResult struct {
