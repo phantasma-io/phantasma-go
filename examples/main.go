@@ -199,7 +199,7 @@ func listLast10Transactions() {
 		fmt.Println("Last 10 transactions:")
 		txs := transactions.Result.(*response.AddressTransactionsResult).Txs
 		for i := 0; i < len(txs); i += 1 {
-			fmt.Println("#", i+1, ": ", txs[i].Hash, " timestamp: ", txs[i].Timestamp)
+			fmt.Println("#", i+1, ": ", txs[i].Hash, " timestamp: ", time.Unix(int64(txs[i].Timestamp), 0))
 		}
 	}
 }
