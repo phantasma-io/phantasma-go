@@ -123,6 +123,41 @@ func (rpc PhantasmaRPC) GetAccount(address string) (resp.AccountResult, error) {
 	return account, nil
 }
 
+// GetAddressTransactions Returns list of transactions for given address
+func (rpc PhantasmaRPC) GetAddressTransactions(address string, page int, pageSize int) (resp.PaginatedResult, error) {
+	var addressTxs resp.PaginatedResult
+	addressTxs.Result = &resp.AddressTransactionsResult{}
+	result, err := rpc.client.Call(context.Background(), "getAddressTransactions", address, page, pageSize)
+
+	if err := checkError(err, result.Error); err != nil {
+		return resp.PaginatedResult{}, err
+	}
+
+	err = result.GetObject(&addressTxs)
+	if err != nil {
+		return resp.PaginatedResult{}, err
+	}
+
+	return addressTxs, nil
+}
+
+// GetAddressTransactionCount Returns number of transactions for given address
+func (rpc PhantasmaRPC) GetAddressTransactionCount(address string, chainName string) (int, error) {
+	var count int
+	result, err := rpc.client.Call(context.Background(), "getAddressTransactionCount", address, chainName)
+
+	if err := checkError(err, result.Error); err != nil {
+		return 0, err
+	}
+
+	err = result.GetObject(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 // InvokeRawScript comment
 func (rpc PhantasmaRPC) InvokeRawScript(chain, script string) (resp.ScriptResult, error) {
 	scriptResult := resp.ScriptResult{}

@@ -104,6 +104,11 @@ type AccountResult struct {
 	Txs       []string        `json:"txs"`
 }
 
+type AddressTransactionsResult struct {
+	Address string              `json:"address"`
+	Txs     []TransactionResult `json:"txs"`
+}
+
 // LeaderboardRowResult comment
 type LeaderboardRowResult struct {
 	Address string `json:"address"`
