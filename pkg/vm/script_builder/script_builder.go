@@ -98,7 +98,7 @@ func (s ScriptBuilder) EmitLoadInt(reg byte, toLoad int) ScriptBuilder {
 	return s
 }
 
-func (s ScriptBuilder) EmitLoadNumberAsString(reg byte, toLoad big.Int) ScriptBuilder {
+func (s ScriptBuilder) EmitLoadNumberAsString(reg byte, toLoad *big.Int) ScriptBuilder {
 	s.EmitLoadString(reg, toLoad.String())
 	return s
 }
@@ -210,8 +210,8 @@ func (s ScriptBuilder) loadIntoReg(dstReg byte, arg interface{}) {
 		s.EmitLoad(dstReg, arg.([]byte), vm.Bytes)
 	case int:
 		s.EmitLoadInt(dstReg, arg.(int))
-	case big.Int:
-		s.EmitLoadNumberAsString(dstReg, arg.(big.Int))
+	case *big.Int:
+		s.EmitLoadNumberAsString(dstReg, arg.(*big.Int))
 	case time.Time:
 		s.EmitLoadTime(dstReg, arg.(time.Time))
 	case crypto.Address:

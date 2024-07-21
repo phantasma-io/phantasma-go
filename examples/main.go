@@ -121,8 +121,8 @@ func sendFungibleTokens() {
 
 	// build script
 	sb := scriptbuilder.BeginScript()
-	script := sb.AllowGas(keyPair.Address().String(), crypto.NullAddress().String(), *big.NewInt(100000), *big.NewInt(21000)).
-		TransferTokens(tokenSymbol, keyPair.Address().String(), to, *tokenAmount).
+	script := sb.AllowGas(keyPair.Address().String(), crypto.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
+		TransferTokens(tokenSymbol, keyPair.Address().String(), to, tokenAmount).
 		SpendGas(keyPair.Address().String()).
 		EndScript()
 
