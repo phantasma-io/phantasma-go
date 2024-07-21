@@ -124,7 +124,7 @@ func BigintStringFromDecimalString(number string, decimals int) string {
 	return BigintStringFromDecimalStringEx(number, decimals, ".", true)
 }
 
-// BigintStringToDecimalString converts decimal number to big integer number, both serialized as a string.
+// BigintFromDecimalString converts decimal number, serialized as a string, to big integer number.
 func BigintFromDecimalString(number string, decimals int) *big.Int {
 	n := new(big.Int)
 	n.SetString(BigintStringFromDecimalString(number, decimals), 10)
