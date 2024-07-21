@@ -1,31 +1,129 @@
 package main
 
 import (
+	"bufio"
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
 	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/rpc"
+	"github.com/phantasma-io/phantasma-go/pkg/rpc/response"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
 	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
 
-func main() {
+// Put WIF and recepient address into predefinedWif and predefinedRecepient variables to skip manual console input
+var predefinedWif string = ""
+var predefinedRecepient string = ""
 
-	// create key pair from WIF
-	kp, err := crypto.FromWIF("ADD_WIF_HERE")
-	if err != nil {
-		panic("Creating keyPair failed!")
+var keyPair crypto.PhantasmaKeys
+var client rpc.PhantasmaRPC
+
+func menu() {
+	reader := bufio.NewReader(os.Stdin)
+
+	logout := false
+	for !logout {
+		fmt.Println()
+		fmt.Println("PHANTASMA GO CONSOLE WALLET DEMO. MENU:")
+		fmt.Println("1 - show address")
+		fmt.Println("2 - show balance")
+		fmt.Println("3 - show balance of other address")
+		fmt.Println("4 - send tokens")
+		fmt.Println("5 - list last 10 transactions")
+		fmt.Println("6 - logout")
+
+		menuIndexStr, _ := reader.ReadString('\n')
+		menuIndexStr = strings.TrimSuffix(menuIndexStr, "\n")
+		menuIndex, _ := strconv.Atoi(menuIndexStr)
+
+		switch menuIndex {
+		case 1:
+			showAddress()
+		case 2:
+			showBalance(keyPair.Address().String())
+		case 3:
+			fmt.Print("Enter address: ")
+			address, _ := reader.ReadString('\n')
+			address = strings.TrimSuffix(address, "\n")
+			showBalance(address)
+		case 4:
+			sendFungibleTokens()
+		case 5:
+			listLast10Transactions()
+		case 6:
+			logout = true
+			break
+		}
 	}
+}
+
+func showAddress() {
+	fmt.Println(keyPair.Address().String())
+}
+
+func showBalance(address string) (int, []response.BalanceResult) {
+	// Calling "GetAccount" method to get token balances of the address
+	account, err := client.GetAccount(address)
+	if err != nil {
+		panic("GetAccount call failed! Error: " + err.Error())
+	} else {
+		fmt.Println("Balances:")
+		for i := 0; i < len(account.Balances); i += 1 {
+			fmt.Println("#", i+1, ": ", account.Balances[i].Symbol, " balance: ", util.BigintStringToDecimalString(account.Balances[i].Amount, int(account.Balances[i].Decimals)))
+		}
+	}
+
+	return len(account.Balances), account.Balances
+}
+
+func sendFungibleTokens() {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Enter destination address: ")
+	var to string
+	if predefinedRecepient == "" {
+		to, _ = reader.ReadString('\n')
+		to = strings.TrimSuffix(to, "\n")
+	} else {
+		fmt.Println(predefinedRecepient)
+		to = predefinedRecepient
+	}
+
+	fmt.Println("Available tokens: ")
+	tokensCount, balances := showBalance(keyPair.Address().String())
+	if tokensCount == 0 {
+		fmt.Println("No tokens available for this address")
+		return
+	}
+	fmt.Print("Choose token to send (#1-", tokensCount, "): ")
+	tokenIndexStr, _ := reader.ReadString('\n')
+	tokenIndexStr = strings.TrimSuffix(tokenIndexStr, "\n")
+	tokenIndex, _ := strconv.Atoi(tokenIndexStr)
+	if tokenIndex > tokensCount {
+		fmt.Println("Incorrect token number entered")
+		return
+	}
+	tokenIndex -= 1
+
+	tokenSymbol := balances[tokenIndex].Symbol
+
+	fmt.Print("Enter amount: (max ", util.BigintStringToDecimalString(balances[tokenIndex].Amount, int(balances[tokenIndex].Decimals)), "): ")
+	tokenAmountStr, _ := reader.ReadString('\n')
+	tokenAmountStr = strings.TrimSuffix(tokenAmountStr, "\n")
+	tokenAmount := util.BigintFromDecimalString(tokenAmountStr, int(balances[tokenIndex].Decimals))
 
 	// build script
 	sb := scriptbuilder.BeginScript()
-	script := sb.AllowGas(kp.Address().String(), crypto.NullAddress().String(), *big.NewInt(100000), *big.NewInt(21000)).
-		TransferTokens("SOUL", kp.Address().String(), "ADD_RECEIVER_HERE", *big.NewInt(100000000)).
-		SpendGas(kp.Address().String()).
+	script := sb.AllowGas(keyPair.Address().String(), crypto.NullAddress().String(), *big.NewInt(100000), *big.NewInt(21000)).
+		TransferTokens(tokenSymbol, keyPair.Address().String(), to, *tokenAmount).
+		SpendGas(keyPair.Address().String()).
 		EndScript()
 
 	// build tx
@@ -33,7 +131,7 @@ func main() {
 	tx := chain.NewTransaction("mainnet", "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
 
 	// sign tx
-	tx.Sign(kp)
+	tx.Sign(keyPair)
 
 	fmt.Println("Tx script: " + hex.EncodeToString(script))
 
@@ -42,7 +140,6 @@ func main() {
 
 	fmt.Println("Tx: " + txHex)
 
-	client := rpc.NewRPCMainnet()
 	txHash, err := client.SendRawTransaction(txHex)
 	if err != nil {
 		panic("Broadcasting tx failed! Error: " + err.Error())
@@ -70,4 +167,51 @@ func main() {
 			break // Funds were not transferred
 		}
 	}
+}
+
+func listLast10Transactions() {
+	// Calling "GetAddressTransactionCount" method to get transactions for the address
+	transactionCount, err := client.GetAddressTransactionCount(keyPair.Address().String(), "main")
+	if err != nil {
+		panic("GetAddressTransactionCount call failed! Error: " + err.Error())
+	} else {
+		fmt.Println("Transactions count: ", transactionCount)
+	}
+
+	// Calling "GetAddressTransactions" method to get transactions for the address
+	transactions, err := client.GetAddressTransactions(keyPair.Address().String(), 1, 10)
+	if err != nil {
+		panic("GetAddressTransactions call failed! Error: " + err.Error())
+	} else {
+		fmt.Println("Last 10 transactions:")
+		txs := transactions.Result.(*response.AddressTransactionsResult).Txs
+		for i := 0; i < len(txs); i += 1 {
+			fmt.Println("#", i+1, ": ", txs[i].Hash, " timestamp: ", txs[i].Timestamp)
+		}
+	}
+}
+
+func main() {
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print("Enter your WIF: ")
+	var wif string
+	if predefinedWif == "" {
+		wif, _ = reader.ReadString('\n')
+		wif = strings.TrimSuffix(wif, "\n")
+	} else {
+		fmt.Println(predefinedWif)
+		wif = predefinedWif
+	}
+
+	// create key pair from WIF
+	var err error
+	keyPair, err = crypto.FromWIF(wif)
+	if err != nil {
+		panic("Creating keyPair failed!")
+	}
+
+	client = rpc.NewRPCMainnet()
+
+	menu()
 }

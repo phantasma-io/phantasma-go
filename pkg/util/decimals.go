@@ -1,6 +1,7 @@
 package util
 
 import (
+	"math/big"
 	"strings"
 	"unicode"
 )
@@ -121,4 +122,11 @@ func BigintStringFromDecimalStringEx(number string, decimals int, separator stri
 // BigintStringToDecimalString converts decimal number to big integer number, both serialized as a string.
 func BigintStringFromDecimalString(number string, decimals int) string {
 	return BigintStringFromDecimalStringEx(number, decimals, ".", true)
+}
+
+// BigintStringToDecimalString converts decimal number to big integer number, both serialized as a string.
+func BigintFromDecimalString(number string, decimals int) *big.Int {
+	n := new(big.Int)
+	n.SetString(BigintStringFromDecimalString(number, decimals), 10)
+	return n
 }
