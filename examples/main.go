@@ -140,6 +140,19 @@ func sendFungibleTokens() {
 
 	fmt.Println("Tx: " + txHex)
 
+	for true {
+		fmt.Print("Send transaction? (y/n): ")
+		sendTransactionYN, _ := reader.ReadString('\n')
+		sendTransactionYN = strings.TrimSuffix(sendTransactionYN, "\n")
+		if strings.ToLower(sendTransactionYN) == "n" {
+			return
+		}
+		if strings.ToLower(sendTransactionYN) == "y" {
+			break
+		}
+		fmt.Println("Please enter 'y' or 'n'")
+	}
+
 	txHash, err := client.SendRawTransaction(txHex)
 	if err != nil {
 		panic("Broadcasting tx failed! Error: " + err.Error())
