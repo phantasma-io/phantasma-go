@@ -171,11 +171,11 @@ func sendFungibleTokens() {
 		//}
 		fmt.Println("Tx state: " + fmt.Sprint(txResult.State))
 
-		if chain.TxStateIsSuccess(txResult.State) {
+		if txResult.StateIsSuccess() {
 			fmt.Println("Transaction was successfully minted, tx hash: " + fmt.Sprint(txResult.Hash))
 			break // Funds were transferred successfully
 		}
-		if chain.TxStateIsFault(txResult.State) {
+		if txResult.StateIsFault() {
 			fmt.Println("Transaction failed, tx hash: " + fmt.Sprint(txResult.Hash))
 			break // Funds were not transferred
 		}

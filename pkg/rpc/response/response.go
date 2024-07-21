@@ -3,6 +3,7 @@ package response
 import (
 	"math/big"
 
+	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
@@ -189,6 +190,14 @@ type TransactionResult struct {
 	Fee          string            `json:"fee"`
 	Signatures   []SignatureResult `json:"signatures"`
 	Expiration   uint              `json:"expiration"`
+}
+
+func (t TransactionResult) StateIsSuccess() bool {
+	return chain.TxStateIsSuccess(t.State)
+}
+
+func (t TransactionResult) StateIsFault() bool {
+	return chain.TxStateIsFault(t.State)
 }
 
 // AccountTransactionsResult comment
