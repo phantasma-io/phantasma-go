@@ -76,7 +76,7 @@ func showBalance(address string) (int, []response.BalanceResult) {
 	} else {
 		fmt.Println("Balances:")
 		for i := 0; i < len(account.Balances); i += 1 {
-			fmt.Println("#", i+1, ": ", account.Balances[i].Symbol, " balance: ", util.BigintStringToDecimalString(account.Balances[i].Amount, int(account.Balances[i].Decimals)))
+			fmt.Println("#", i+1, ": ", account.Balances[i].Symbol, " balance: ", account.Balances[i].ConvertDecimals())
 		}
 	}
 
@@ -114,10 +114,10 @@ func sendFungibleTokens() {
 
 	tokenSymbol := balances[tokenIndex].Symbol
 
-	fmt.Print("Enter amount: (max ", util.BigintStringToDecimalString(balances[tokenIndex].Amount, int(balances[tokenIndex].Decimals)), "): ")
+	fmt.Print("Enter amount: (max ", balances[tokenIndex].ConvertDecimals(), "): ")
 	tokenAmountStr, _ := reader.ReadString('\n')
 	tokenAmountStr = strings.TrimSuffix(tokenAmountStr, "\n")
-	tokenAmount := util.BigintFromDecimalString(tokenAmountStr, int(balances[tokenIndex].Decimals))
+	tokenAmount := util.ConvertDecimalsBack(tokenAmountStr, int(balances[tokenIndex].Decimals))
 
 	// build script
 	sb := scriptbuilder.BeginScript()

@@ -1,5 +1,11 @@
 package response
 
+import (
+	"math/big"
+
+	"github.com/phantasma-io/phantasma-go/pkg/util"
+)
+
 // ErrorResult comment
 type ErrorResult struct {
 	Error string `json:"error"`
@@ -17,6 +23,15 @@ type BalanceResult struct {
 	Symbol   string   `json:"symbol"`
 	Decimals uint     `json:"decimals"`
 	Ids      []string `json:"ids"`
+}
+
+func (b BalanceResult) ConvertDecimals() string {
+	return util.ConvertDecimalsEx(b.Amount, int(b.Decimals), ".")
+}
+
+func (b BalanceResult) ConvertDecimalsToFloat() *big.Float {
+	f, _ := big.NewFloat(0).SetString(b.ConvertDecimals())
+	return f
 }
 
 // InteropResult a

@@ -42,8 +42,9 @@ func stringIsZeroOrEmptyBigint(number string) bool {
 }
 
 // Public utils
-// BigintStringToDecimalString converts big integer number to decimal number, both serialized as a string.
-func BigintStringToDecimalString(number string, decimals int) string {
+// ConvertDecimalsEx converts big integer number to decimal number, both serialized as a string.
+// Example: ConvertDecimalsEx("90000", 10, ".") call returns "0.000009" string
+func ConvertDecimalsEx(number string, decimals int, separator string) string {
 	if stringIsZeroOrEmptyBigint(number) {
 		return "0"
 	}
@@ -53,7 +54,7 @@ func BigintStringToDecimalString(number string, decimals int) string {
 	}
 
 	if len(number) <= decimals {
-		return "0." + strings.Repeat("0", decimals-len(number)) + trimWholeSuffix(number, "0")
+		return "0" + separator + strings.Repeat("0", decimals-len(number)) + trimWholeSuffix(number, "0")
 	}
 
 	integerPart := number[:len(number)-decimals]
@@ -66,11 +67,18 @@ func BigintStringToDecimalString(number string, decimals int) string {
 	if stringIsZeroOrEmptyBigint(fractionalPart) {
 		return integerPart
 	}
-	return integerPart + "." + trimWholeSuffix(fractionalPart, "0")
+	return integerPart + separator + trimWholeSuffix(fractionalPart, "0")
 }
 
-// BigintStringToDecimalStringEx converts decimal number to big integer number, both serialized as a string.
-func BigintStringFromDecimalStringEx(number string, decimals int, separator string, panicIfRoundingNeeded bool) string {
+// ConvertDecimals converts big integer number to decimal number, serialized as a string.
+// Example: ConvertDecimals(*big.NewInt(90000), 10) call returns "0.000009" string
+func ConvertDecimals(number big.Int, decimals int) string {
+	return ConvertDecimalsEx(number.String(), decimals, ".")
+}
+
+// ConvertDecimalsBackEx converts decimal number to big integer number, both serialized as a string.
+// Example: ConvertDecimalsBackEx("0.000009", 10, ".", true) call returns "90000" string
+func ConvertDecimalsBackEx(number string, decimals int, separator string, panicIfRoundingNeeded bool) string {
 	if stringIsZeroOrEmptyBigint(number) {
 		return "0"
 	}
@@ -119,14 +127,10 @@ func BigintStringFromDecimalStringEx(number string, decimals int, separator stri
 	return result
 }
 
-// BigintStringToDecimalString converts decimal number to big integer number, both serialized as a string.
-func BigintStringFromDecimalString(number string, decimals int) string {
-	return BigintStringFromDecimalStringEx(number, decimals, ".", true)
-}
-
-// BigintFromDecimalString converts decimal number, serialized as a string, to big integer number.
-func BigintFromDecimalString(number string, decimals int) *big.Int {
+// ConvertDecimalsBack converts decimal number, serialized as a string, to big integer number.
+// Example: ConvertDecimalsBack("0.000009", 10) call returns *big.Int with value 90000
+func ConvertDecimalsBack(number string, decimals int) *big.Int {
 	n := new(big.Int)
-	n.SetString(BigintStringFromDecimalString(number, decimals), 10)
+	n.SetString(ConvertDecimalsBackEx(number, decimals, ".", true), 10)
 	return n
 }
