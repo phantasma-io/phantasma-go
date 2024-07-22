@@ -16,6 +16,14 @@ func (s ScriptBuilder) MintTokens(symbol, from, to string, amount *big.Int) Scri
 	return s.CallInterop("Runtime.MintTokens", from, to, symbol, amount)
 }
 
+func (s ScriptBuilder) Stake(address string, amount *big.Int) ScriptBuilder {
+	return s.CallContract("stake", "Stake", address, amount)
+}
+
+func (s ScriptBuilder) Unstake(address string, amount *big.Int) ScriptBuilder {
+	return s.CallContract("stake", "Unstake", address, amount)
+}
+
 func (s ScriptBuilder) TransferTokens(symbol, from, to string, amount *big.Int) ScriptBuilder {
 	return s.CallInterop("Runtime.TransferTokens", from, to, symbol, amount)
 }

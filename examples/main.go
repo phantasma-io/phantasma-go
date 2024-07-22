@@ -53,8 +53,9 @@ func menu() {
 		fmt.Println("2 - show balance")
 		fmt.Println("3 - show balance of other address")
 		fmt.Println("4 - send tokens")
-		fmt.Println("5 - list last 10 transactions")
-		fmt.Println("6 - logout")
+		fmt.Println("5 - staking")
+		fmt.Println("6 - list last 10 transactions")
+		fmt.Println("7 - logout")
 
 		menuIndexStr, _ := reader.ReadString('\n')
 		menuIndexStr = strings.TrimSuffix(menuIndexStr, "\n")
@@ -73,10 +74,11 @@ func menu() {
 		case 4:
 			sendFungibleTokens()
 		case 5:
-			listLast10Transactions()
+			staking()
 		case 6:
+			listLast10Transactions()
+		case 7:
 			logout = true
-			break
 		}
 	}
 }
@@ -98,7 +100,13 @@ func showBalance(address string) (int, []response.BalanceResult) {
 		for i := 0; i < len(account.Balances); i += 1 {
 			t := getChainToken(account.Balances[i].Symbol)
 			if t.IsFungible() {
-				fmt.Println("#", j, ": ", account.Balances[i].Symbol, " balance: ", account.Balances[i].ConvertDecimals())
+				if account.Balances[i].Symbol == "SOUL" {
+					unstakedSoul := account.Balances[i].ConvertDecimalsToFloat()
+					stakedSoul := account.Stakes.ConvertDecimalsToFloat()
+					fmt.Printf("#%02d: %s balance: %s [not staked: %s | staked: %s]\n", j, account.Balances[i].Symbol, (new(big.Float).Add(unstakedSoul, stakedSoul)).String(), unstakedSoul.String(), stakedSoul.String())
+				} else {
+					fmt.Printf("#%02d: %s balance: %s\n", j, account.Balances[i].Symbol, account.Balances[i].ConvertDecimals())
+				}
 				j += 1
 			}
 		}
@@ -107,7 +115,7 @@ func showBalance(address string) (int, []response.BalanceResult) {
 		for i := 0; i < len(account.Balances); i += 1 {
 			t := getChainToken(account.Balances[i].Symbol)
 			if !t.IsFungible() {
-				fmt.Println("#", j, ": ", account.Balances[i].Symbol, " balance: ", account.Balances[i].ConvertDecimals())
+				fmt.Printf("#%02d: %s balance: %s\n", j, account.Balances[i].Symbol, account.Balances[i].ConvertDecimals())
 				j += 1
 			}
 		}
@@ -158,6 +166,144 @@ func sendFungibleTokens() {
 		TransferTokens(tokenSymbol, keyPair.Address().String(), to, tokenAmount).
 		SpendGas(keyPair.Address().String()).
 		EndScript()
+
+	// build tx
+	expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
+	tx := chain.NewTransaction("mainnet", "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
+
+	// sign tx
+	tx.Sign(keyPair)
+
+	fmt.Println("Tx script: " + hex.EncodeToString(script))
+
+	// encode tx as hex
+	txHex := hex.EncodeToString(tx.Bytes(true))
+
+	fmt.Println("Tx: " + txHex)
+
+	for true {
+		fmt.Print("Send transaction? (y/n): ")
+		sendTransactionYN, _ := reader.ReadString('\n')
+		sendTransactionYN = strings.TrimSuffix(sendTransactionYN, "\n")
+		if strings.ToLower(sendTransactionYN) == "n" {
+			return
+		}
+		if strings.ToLower(sendTransactionYN) == "y" {
+			break
+		}
+		fmt.Println("Please enter 'y' or 'n'")
+	}
+
+	txHash, err := client.SendRawTransaction(txHex)
+	if err != nil {
+		panic("Broadcasting tx failed! Error: " + err.Error())
+	} else {
+		if util.ErrorDetect(txHash) {
+			panic("Broadcasting tx failed! Error: " + txHash)
+		} else {
+			fmt.Println("Tx successfully broadcasted! Tx hash: " + txHash)
+		}
+	}
+
+	for {
+		txResult, _ := client.GetTransaction(txHash)
+		//if err != nil {
+		//	fmt.Println("err: " + err.Error())
+		//}
+		fmt.Println("Tx state: " + fmt.Sprint(txResult.State))
+
+		if txResult.StateIsSuccess() {
+			fmt.Println("Transaction was successfully minted, tx hash: " + fmt.Sprint(txResult.Hash))
+			break // Funds were transferred successfully
+		}
+		if txResult.StateIsFault() {
+			fmt.Println("Transaction failed, tx hash: " + fmt.Sprint(txResult.Hash))
+			break // Funds were not transferred
+		}
+	}
+}
+
+func getSoulBalanceForAddress(address string) (*big.Float, *big.Float) {
+	// Calling "GetAccount" method to get token balances of the address
+	account, err := client.GetAccount(address)
+	if err != nil {
+		panic("GetAccount call failed! Error: " + err.Error())
+	}
+
+	for i := 0; i < len(account.Balances); i += 1 {
+		if account.Balances[i].Symbol == "SOUL" {
+			return account.Balances[i].ConvertDecimalsToFloat(), account.Stakes.ConvertDecimalsToFloat()
+		}
+	}
+
+	return big.NewFloat(0), big.NewFloat(0)
+}
+
+func staking() {
+	reader := bufio.NewReader(os.Stdin)
+
+	unstakedSoul, stakedSoul := getSoulBalanceForAddress(keyPair.Address().String())
+	fmt.Printf("SOUL balance: %s [not staked: %s | staked: %s]\n", (new(big.Float).Add(unstakedSoul, stakedSoul)).String(), unstakedSoul.String(), stakedSoul.String())
+
+	fmt.Println("SOUL STAKING MENU:")
+	fmt.Println("1 - stake")
+	fmt.Println("2 - unstake")
+	fmt.Println("3 - go back")
+
+	menuIndexStr, _ := reader.ReadString('\n')
+	menuIndexStr = strings.TrimSuffix(menuIndexStr, "\n")
+	menuIndex, _ := strconv.Atoi(menuIndexStr)
+
+	stakeMode := true
+	switch menuIndex {
+	case 1:
+		stakeMode = true
+	case 2:
+		stakeMode = false
+	case 3:
+		return
+	}
+
+	t := getChainToken("SOUL")
+
+	var tokenAmount *big.Int
+	for true {
+		if stakeMode {
+			fmt.Print("Enter amount: (max ", unstakedSoul, "): ")
+		} else {
+			fmt.Print("Enter amount: (max ", stakedSoul, "): ")
+		}
+		tokenAmountStr, _ := reader.ReadString('\n')
+		tokenAmountStr = strings.TrimSuffix(tokenAmountStr, "\n")
+		tokenAmount = util.ConvertDecimalsBack(tokenAmountStr, int(t.Decimals))
+
+		tokenAmountFloat, _ := big.NewFloat(0).SetString(tokenAmountStr)
+		if stakeMode {
+			if tokenAmountFloat.Cmp(unstakedSoul) > 0 {
+				fmt.Printf("Entered amount '%s' is higher than SOUL amount available for staking '%s'\n", tokenAmountFloat.String(), unstakedSoul.String())
+			} else {
+				break
+			}
+		} else {
+			if tokenAmountFloat.Cmp(stakedSoul) > 0 {
+				fmt.Printf("Entered amount '%s' is higher than SOUL amount available for unstaking '%s'\n", tokenAmountFloat.String(), stakedSoul.String())
+			} else {
+				break
+			}
+		}
+	}
+
+	// build script
+	sb := scriptbuilder.BeginScript()
+	sb = sb.AllowGas(keyPair.Address().String(), crypto.NullAddress().String(), big.NewInt(100000), big.NewInt(21000))
+	if stakeMode {
+		sb = sb.Stake(keyPair.Address().String(), tokenAmount)
+	} else {
+		sb = sb.Unstake(keyPair.Address().String(), tokenAmount)
+	}
+
+	sb = sb.SpendGas(keyPair.Address().String())
+	script := sb.EndScript()
 
 	// build tx
 	expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()

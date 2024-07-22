@@ -100,6 +100,15 @@ type StakeResult struct {
 	Unclaimed string `json:"unclaimed"`
 }
 
+func (s StakeResult) ConvertDecimals() string {
+	return util.ConvertDecimalsEx(s.Amount, 8, ".") // Phantasma Stake token (SOUL) has 8 decimals
+}
+
+func (s StakeResult) ConvertDecimalsToFloat() *big.Float {
+	f, _ := big.NewFloat(0).SetString(s.ConvertDecimals())
+	return f
+}
+
 // StorageResult comment
 type StorageResult struct {
 	Available uint            `json:"available"`
