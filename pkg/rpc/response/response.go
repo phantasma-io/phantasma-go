@@ -2,6 +2,8 @@ package response
 
 import (
 	"math/big"
+	"slices"
+	"strings"
 
 	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
@@ -261,6 +263,42 @@ type TokenResult struct {
 	Series        []TokenSeriesResult   `json:"series"`
 	External      []TokenExternalResult `json:"external"`
 	Price         []TokenPriceResult    `json:"price"`
+}
+
+func (t TokenResult) IsBurnable() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Burnable")
+}
+
+func (t TokenResult) IsDivisible() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Divisible")
+}
+
+func (t TokenResult) IsFiat() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Fiat")
+}
+
+func (t TokenResult) IsFinite() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Finite")
+}
+
+func (t TokenResult) IsFuel() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Fuel")
+}
+
+func (t TokenResult) IsFungible() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Fungible")
+}
+
+func (t TokenResult) IsMintable() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Mintable")
+}
+
+func (t TokenResult) IsStakable() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Stakable")
+}
+
+func (t TokenResult) IsTransferable() bool {
+	return slices.Contains(strings.Split(t.Flags, ", "), "Transferable")
 }
 
 // TokenSeriesResult comment

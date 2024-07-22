@@ -24,6 +24,23 @@ var predefinedRecepient string = ""
 
 var keyPair crypto.PhantasmaKeys
 var client rpc.PhantasmaRPC
+var chainTokens []response.TokenResult
+
+func printTokens() {
+	for _, t := range chainTokens {
+		fmt.Println(t.Symbol, "flags:", t.Flags)
+	}
+}
+
+func getChainToken(symbol string) response.TokenResult {
+	for _, t := range chainTokens {
+		if t.Symbol == symbol {
+			return t
+		}
+	}
+
+	panic("Token not found")
+}
 
 func menu() {
 	reader := bufio.NewReader(os.Stdin)
@@ -75,8 +92,24 @@ func showBalance(address string) (int, []response.BalanceResult) {
 		panic("GetAccount call failed! Error: " + err.Error())
 	} else {
 		fmt.Println("Balances:")
+
+		fmt.Println("- Fungible tokens:")
+		j := 1
 		for i := 0; i < len(account.Balances); i += 1 {
-			fmt.Println("#", i+1, ": ", account.Balances[i].Symbol, " balance: ", account.Balances[i].ConvertDecimals())
+			t := getChainToken(account.Balances[i].Symbol)
+			if t.IsFungible() {
+				fmt.Println("#", j, ": ", account.Balances[i].Symbol, " balance: ", account.Balances[i].ConvertDecimals())
+				j += 1
+			}
+		}
+
+		fmt.Println("- Non-fungible tokens (NFTs):")
+		for i := 0; i < len(account.Balances); i += 1 {
+			t := getChainToken(account.Balances[i].Symbol)
+			if !t.IsFungible() {
+				fmt.Println("#", j, ": ", account.Balances[i].Symbol, " balance: ", account.Balances[i].ConvertDecimals())
+				j += 1
+			}
 		}
 	}
 
@@ -205,6 +238,20 @@ func listLast10Transactions() {
 }
 
 func main() {
+	client = rpc.NewRPCMainnet()
+
+	var err error
+	chainTokens, err = client.GetTokens(false)
+	fmt.Println("Received information about", len(chainTokens), "chain tokens")
+
+	// printTokens()
+	// t := getChainToken("SOUL")
+	// fmt.Println(t.Symbol, "fungible:", t.IsFungible(), "fuel:", t.IsFuel(), "stakable:", t.IsStakable(), "burnable:", t.IsBurnable(), "transferable:", t.IsTransferable())
+	// t = getChainToken("CROWN")
+	// fmt.Println(t.Symbol, "fungible:", t.IsFungible(), "fuel:", t.IsFuel(), "stakable:", t.IsStakable(), "burnable:", t.IsBurnable(), "transferable:", t.IsTransferable())
+	// t = getChainToken("KCAL")
+	// fmt.Println(t.Symbol, "fungible:", t.IsFungible(), "fuel:", t.IsFuel(), "stakable:", t.IsStakable(), "burnable:", t.IsBurnable(), "transferable:", t.IsTransferable())
+
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Enter your WIF: ")
@@ -218,13 +265,10 @@ func main() {
 	}
 
 	// create key pair from WIF
-	var err error
 	keyPair, err = crypto.FromWIF(wif)
 	if err != nil {
 		panic("Creating keyPair failed!")
 	}
-
-	client = rpc.NewRPCMainnet()
 
 	menu()
 }
