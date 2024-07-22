@@ -22,6 +22,7 @@ import (
 var predefinedWif string = ""
 var predefinedRecepient string = ""
 
+var netSelected string
 var keyPair crypto.PhantasmaKeys
 var client rpc.PhantasmaRPC
 var chainTokens []response.TokenResult
@@ -169,7 +170,7 @@ func sendFungibleTokens() {
 
 	// build tx
 	expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
-	tx := chain.NewTransaction("mainnet", "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
+	tx := chain.NewTransaction(netSelected, "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
 
 	// sign tx
 	tx.Sign(keyPair)
@@ -307,7 +308,7 @@ func staking() {
 
 	// build tx
 	expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
-	tx := chain.NewTransaction("mainnet", "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
+	tx := chain.NewTransaction(netSelected, "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
 
 	// sign tx
 	tx.Sign(keyPair)
@@ -384,7 +385,13 @@ func listLast10Transactions() {
 }
 
 func main() {
-	client = rpc.NewRPCMainnet()
+	_, netSelected = PromptIndexedMenu("SELECT TESTNET OR MAINNET", []string{"testnet", "mainnet"})
+
+	if netSelected == "testnet" {
+		client = rpc.NewRPCTestnet()
+	} else {
+		client = rpc.NewRPCMainnet()
+	}
 
 	var err error
 	chainTokens, err = client.GetTokens(false)
