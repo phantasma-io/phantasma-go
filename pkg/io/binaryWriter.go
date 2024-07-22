@@ -3,6 +3,7 @@ package io
 import (
 	"encoding/binary"
 	"io"
+	"math/big"
 	"reflect"
 )
 
@@ -138,6 +139,22 @@ func (w *BinWriter) WriteBytes(b []byte) {
 		return
 	}
 	_, w.Err = w.w.Write(b)
+}
+
+// WriteNumber writes a big integer in binary form into the underlying io.Writer.
+func (w *BinWriter) WriteNumber(n *big.Int) {
+	if w.Err != nil {
+		return
+	}
+
+	b := n.Bytes()
+
+	// Converting to little-endian format, supported by Phantasma blockchain
+	for i := 0; i < len(b)/2; i++ {
+		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
+	}
+
+	w.WriteVarBytes(b)
 }
 
 // WriteVarBytes writes a variable length byte array into the underlying io.Writer.

@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"math/big"
 	"reflect"
 )
 
@@ -163,6 +164,24 @@ func (r *BinReader) ReadVarUint() uint64 {
 	}
 
 	return uint64(b)
+}
+
+// ReadNumber reads a big integer stored in binary form from the
+// underlying reader.
+func (r *BinReader) ReadNumber() *big.Int {
+	if r.Err != nil {
+		return big.NewInt(0)
+	}
+
+	b := r.ReadVarBytes()
+
+	// Converting from little-endian format, supported by Phantasma blockchain,
+	// into a big-endian unsigned integer, supported by following SetBytes() call
+	for i := 0; i < len(b)/2; i++ {
+		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
+	}
+
+	return big.NewInt(0).SetBytes(b)
 }
 
 // ReadVarBytes reads the next set of bytes from the underlying reader.
