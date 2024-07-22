@@ -42,7 +42,7 @@ func PromptYNChoice(message string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print(message, "Please enter 'y' or 'n': ")
+		fmt.Print(message, " Please enter 'y' or 'n': ")
 		choiceYN, _ := reader.ReadString('\n')
 		choiceYN = strings.TrimSuffix(choiceYN, "\n")
 		if strings.ToLower(choiceYN) == "n" {
