@@ -1,13 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"os"
-	"strconv"
-	"strings"
 	"time"
 
 	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
@@ -44,23 +40,16 @@ func getChainToken(symbol string) response.TokenResult {
 }
 
 func menu() {
-	reader := bufio.NewReader(os.Stdin)
-
 	logout := false
 	for !logout {
-		fmt.Println()
-		fmt.Println("PHANTASMA GO CONSOLE WALLET DEMO. MENU:")
-		fmt.Println("1 - show address")
-		fmt.Println("2 - show balance")
-		fmt.Println("3 - show balance of other address")
-		fmt.Println("4 - send tokens")
-		fmt.Println("5 - staking")
-		fmt.Println("6 - list last 10 transactions")
-		fmt.Println("7 - logout")
-
-		menuIndexStr, _ := reader.ReadString('\n')
-		menuIndexStr = strings.TrimSuffix(menuIndexStr, "\n")
-		menuIndex, _ := strconv.Atoi(menuIndexStr)
+		menuIndex, _ := PromptIndexedMenu("\nPHANTASMA GO CONSOLE WALLET DEMO. MENU:",
+			[]string{"show address",
+				"show balance",
+				"show balance of other address",
+				"send tokens",
+				"staking",
+				"list last 10 transactions",
+				"logout"})
 
 		switch menuIndex {
 		case 1:
@@ -68,10 +57,7 @@ func menu() {
 		case 2:
 			showBalance(keyPair.Address().String())
 		case 3:
-			fmt.Print("Enter address: ")
-			address, _ := reader.ReadString('\n')
-			address = strings.TrimSuffix(address, "\n")
-			showBalance(address)
+			showBalance(PromptStringInput("Enter address: "))
 		case 4:
 			sendFungibleTokens()
 		case 5:
@@ -126,15 +112,11 @@ func showBalance(address string) (int, []response.BalanceResult) {
 }
 
 func sendFungibleTokens() {
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Print("Enter destination address: ")
 	var to string
 	if predefinedRecepient == "" {
-		to, _ = reader.ReadString('\n')
-		to = strings.TrimSuffix(to, "\n")
+		to = PromptStringInput("Enter destination address: ")
 	} else {
-		fmt.Println(predefinedRecepient)
+		fmt.Println("Predefined destination address: ", predefinedRecepient)
 		to = predefinedRecepient
 	}
 
@@ -144,21 +126,12 @@ func sendFungibleTokens() {
 		fmt.Println("No tokens available for this address")
 		return
 	}
-	fmt.Print("Choose token to send (#1-", tokensCount, "): ")
-	tokenIndexStr, _ := reader.ReadString('\n')
-	tokenIndexStr = strings.TrimSuffix(tokenIndexStr, "\n")
-	tokenIndex, _ := strconv.Atoi(tokenIndexStr)
-	if tokenIndex > tokensCount {
-		fmt.Println("Incorrect token number entered")
-		return
-	}
+	tokenIndex := PromptIntInput("Choose token to send", 1, tokensCount)
 	tokenIndex -= 1
 
 	tokenSymbol := balances[tokenIndex].Symbol
 
-	fmt.Print("Enter amount: (max ", balances[tokenIndex].ConvertDecimals(), "): ")
-	tokenAmountStr, _ := reader.ReadString('\n')
-	tokenAmountStr = strings.TrimSuffix(tokenAmountStr, "\n")
+	_, tokenAmountStr := PromptBigFloatInput("Enter amount:", big.NewFloat(0), balances[tokenIndex].ConvertDecimalsToFloat())
 	tokenAmount := util.ConvertDecimalsBack(tokenAmountStr, int(balances[tokenIndex].Decimals))
 
 	// build script
@@ -182,17 +155,8 @@ func sendFungibleTokens() {
 
 	fmt.Println("Tx: " + txHex)
 
-	for true {
-		fmt.Print("Send transaction? (y/n): ")
-		sendTransactionYN, _ := reader.ReadString('\n')
-		sendTransactionYN = strings.TrimSuffix(sendTransactionYN, "\n")
-		if strings.ToLower(sendTransactionYN) == "n" {
-			return
-		}
-		if strings.ToLower(sendTransactionYN) == "y" {
-			break
-		}
-		fmt.Println("Please enter 'y' or 'n'")
+	if !PromptYNChoice("Send transaction?") {
+		return
 	}
 
 	txHash, err := client.SendRawTransaction(txHex)
@@ -241,19 +205,10 @@ func getSoulBalanceForAddress(address string) (*big.Float, *big.Float) {
 }
 
 func staking() {
-	reader := bufio.NewReader(os.Stdin)
-
 	unstakedSoul, stakedSoul := getSoulBalanceForAddress(keyPair.Address().String())
 	fmt.Printf("SOUL balance: %s [not staked: %s | staked: %s]\n", (new(big.Float).Add(unstakedSoul, stakedSoul)).String(), unstakedSoul.String(), stakedSoul.String())
 
-	fmt.Println("SOUL STAKING MENU:")
-	fmt.Println("1 - stake")
-	fmt.Println("2 - unstake")
-	fmt.Println("3 - go back")
-
-	menuIndexStr, _ := reader.ReadString('\n')
-	menuIndexStr = strings.TrimSuffix(menuIndexStr, "\n")
-	menuIndex, _ := strconv.Atoi(menuIndexStr)
+	menuIndex, _ := PromptIndexedMenu("SOUL STAKING MENU:", []string{"stake", "unstake", "go back"})
 
 	stakeMode := true
 	switch menuIndex {
@@ -267,32 +222,14 @@ func staking() {
 
 	t := getChainToken("SOUL")
 
-	var tokenAmount *big.Int
-	for true {
-		if stakeMode {
-			fmt.Print("Enter amount: (max ", unstakedSoul, "): ")
-		} else {
-			fmt.Print("Enter amount: (max ", stakedSoul, "): ")
-		}
-		tokenAmountStr, _ := reader.ReadString('\n')
-		tokenAmountStr = strings.TrimSuffix(tokenAmountStr, "\n")
-		tokenAmount = util.ConvertDecimalsBack(tokenAmountStr, int(t.Decimals))
-
-		tokenAmountFloat, _ := big.NewFloat(0).SetString(tokenAmountStr)
-		if stakeMode {
-			if tokenAmountFloat.Cmp(unstakedSoul) > 0 {
-				fmt.Printf("Entered amount '%s' is higher than SOUL amount available for staking '%s'\n", tokenAmountFloat.String(), unstakedSoul.String())
-			} else {
-				break
-			}
-		} else {
-			if tokenAmountFloat.Cmp(stakedSoul) > 0 {
-				fmt.Printf("Entered amount '%s' is higher than SOUL amount available for unstaking '%s'\n", tokenAmountFloat.String(), stakedSoul.String())
-			} else {
-				break
-			}
-		}
+	var amountLimit *big.Float
+	if stakeMode {
+		amountLimit = unstakedSoul
+	} else {
+		amountLimit = stakedSoul
 	}
+	_, tokenAmountStr := PromptBigFloatInput("Enter amount:", big.NewFloat(0), amountLimit)
+	tokenAmount := util.ConvertDecimalsBack(tokenAmountStr, int(t.Decimals))
 
 	// build script
 	sb := scriptbuilder.BeginScript()
@@ -320,17 +257,8 @@ func staking() {
 
 	fmt.Println("Tx: " + txHex)
 
-	for true {
-		fmt.Print("Send transaction? (y/n): ")
-		sendTransactionYN, _ := reader.ReadString('\n')
-		sendTransactionYN = strings.TrimSuffix(sendTransactionYN, "\n")
-		if strings.ToLower(sendTransactionYN) == "n" {
-			return
-		}
-		if strings.ToLower(sendTransactionYN) == "y" {
-			break
-		}
-		fmt.Println("Please enter 'y' or 'n'")
+	if !PromptYNChoice("Send transaction?") {
+		return
 	}
 
 	txHash, err := client.SendRawTransaction(txHex)
@@ -395,7 +323,7 @@ func main() {
 
 	var err error
 	chainTokens, err = client.GetTokens(false)
-	fmt.Println("Received information about", len(chainTokens), "chain tokens")
+	fmt.Println("Received information about", len(chainTokens), netSelected, "tokens")
 
 	// printTokens()
 	// t := getChainToken("SOUL")
@@ -405,15 +333,11 @@ func main() {
 	// t = getChainToken("KCAL")
 	// fmt.Println(t.Symbol, "fungible:", t.IsFungible(), "fuel:", t.IsFuel(), "stakable:", t.IsStakable(), "burnable:", t.IsBurnable(), "transferable:", t.IsTransferable())
 
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Print("Enter your WIF: ")
 	var wif string
 	if predefinedWif == "" {
-		wif, _ = reader.ReadString('\n')
-		wif = strings.TrimSuffix(wif, "\n")
+		wif = PromptStringInput("Enter your WIF: ")
 	} else {
-		fmt.Println(predefinedWif)
+		fmt.Println("Predefined WIF: ", predefinedWif)
 		wif = predefinedWif
 	}
 
