@@ -378,12 +378,13 @@ type ScriptResult struct {
 	Oracles []OracleResult `json:"oracles"`
 }
 
-func (s ScriptResult) DecodeResult() vm.VMObject {
+func (s ScriptResult) DecodeResult() *vm.VMObject {
 	decoded, _ := hex.DecodeString(s.Result)
 	br := io.NewBinReaderFromBuf(decoded)
 
 	var vmObject vm.VMObject
-	return vmObject.Deserialize(br)
+	vmObject.Deserialize(br)
+	return &vmObject
 }
 
 // ArchiveResult comment

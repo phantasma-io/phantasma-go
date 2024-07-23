@@ -11,7 +11,7 @@ type VMObject struct {
 	Data interface{}
 }
 
-func (v VMObject) AsNumber() *big.Int {
+func (v *VMObject) AsNumber() *big.Int {
 	// TODO timestamp is not yet supported here
 	//if ((this.Type == VMType.Object || this.Type == VMType.Timestamp) && (Data is Timestamp))
 	//        {
@@ -54,7 +54,7 @@ func (v VMObject) AsNumber() *big.Int {
 }
 
 // Serialize implements ther Serializable interface
-func (v VMObject) Serialize(writer *io.BinWriter) {
+func (v *VMObject) Serialize(writer *io.BinWriter) {
 	if v.Type == None {
 		return
 	}
@@ -69,7 +69,7 @@ func (v VMObject) Serialize(writer *io.BinWriter) {
 }
 
 // Deserialize implements ther Serializable interface
-func (v VMObject) Deserialize(reader *io.BinReader) VMObject {
+func (v *VMObject) Deserialize(reader *io.BinReader) {
 	v.Type = VMType(reader.ReadB())
 
 	switch v.Type {
@@ -90,6 +90,4 @@ func (v VMObject) Deserialize(reader *io.BinReader) VMObject {
 	case Timestamp:
 		panic("Not implemented")
 	}
-
-	return v
 }
