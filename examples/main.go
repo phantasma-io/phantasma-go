@@ -41,6 +41,7 @@ func menu() {
 		menuIndex, _ := PromptIndexedMenu("\nPHANTASMA GO CONSOLE WALLET DEMO. MENU:",
 			[]string{"show address",
 				"show balance",
+				"wait for incoming transfers",
 				"show balance of other address",
 				"send tokens",
 				"staking",
@@ -54,16 +55,18 @@ func menu() {
 		case 2:
 			printBalance(keyPair.Address().String())
 		case 3:
-			printBalance(PromptStringInput("Enter address: "))
+			waitForIncomingTransfers(keyPair.Address().String())
 		case 4:
-			sendFungibleTokens()
+			printBalance(PromptStringInput("Enter address: "))
 		case 5:
-			staking()
+			sendFungibleTokens()
 		case 6:
-			listLast10Transactions()
+			staking()
 		case 7:
-			chainStats()
+			listLast10Transactions()
 		case 8:
+			chainStats()
+		case 9:
 			logout = true
 		}
 	}

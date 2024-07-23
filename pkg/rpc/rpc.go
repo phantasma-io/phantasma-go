@@ -158,6 +158,28 @@ func (rpc PhantasmaRPC) GetAddressTransactionCount(address string, chainName str
 	return count, nil
 }
 
+// GetBlockByHeight Returns block by height
+func (rpc PhantasmaRPC) GetBlockByHeight(chain string, height string) (resp.BlockResult, error) {
+	var blockResult resp.BlockResult
+	result, err := rpc.client.Call(context.Background(), "getBlockByHeight", chain, height)
+
+	if err := checkError(err, result.Error); err != nil {
+		return resp.BlockResult{}, err
+	}
+
+	err = result.GetObject(&blockResult)
+	if err != nil {
+		errorResult := resp.ErrorResult{}
+		err = result.GetObject(&errorResult)
+		if err != nil {
+			return blockResult, err
+		}
+
+		return blockResult, fmt.Errorf(errorResult.Error)
+	}
+	return blockResult, nil
+}
+
 // GetBlockHeight Returns height of the latest block minted on the chain
 func (rpc PhantasmaRPC) GetBlockHeight(chainName string) (*big.Int, error) {
 	var resultValue string
