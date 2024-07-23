@@ -1,12 +1,15 @@
 package response
 
 import (
+	"encoding/hex"
 	"math/big"
 	"slices"
 	"strings"
 
 	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
+	"github.com/phantasma-io/phantasma-go/pkg/io"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
+	"github.com/phantasma-io/phantasma-go/pkg/vm"
 )
 
 // ErrorResult comment
@@ -373,6 +376,14 @@ type ScriptResult struct {
 	Result  string         `json:"result"`
 	Results []string       `json:"results"`
 	Oracles []OracleResult `json:"oracles"`
+}
+
+func (s ScriptResult) DecodeResult() vm.VMObject {
+	decoded, _ := hex.DecodeString(s.Result)
+	br := io.NewBinReaderFromBuf(decoded)
+
+	var vmObject vm.VMObject
+	return vmObject.Deserialize(br)
 }
 
 // ArchiveResult comment
