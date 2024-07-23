@@ -72,7 +72,7 @@ func ConvertDecimalsEx(number string, decimals int, separator string) string {
 
 // ConvertDecimals converts big integer number to decimal number, serialized as a string.
 // Example: ConvertDecimals(*big.NewInt(90000), 10) call returns "0.000009" string
-func ConvertDecimals(number big.Int, decimals int) string {
+func ConvertDecimals(number *big.Int, decimals int) string {
 	return ConvertDecimalsEx(number.String(), decimals, ".")
 }
 
