@@ -125,18 +125,17 @@ func (rpc PhantasmaRPC) GetAccount(address string) (resp.AccountResult, error) {
 }
 
 // GetAddressTransactions Returns list of transactions for given address
-func (rpc PhantasmaRPC) GetAddressTransactions(address string, page int, pageSize int) (resp.PaginatedResult, error) {
-	var addressTxs resp.PaginatedResult
-	addressTxs.Result = &resp.AddressTransactionsResult{}
+func (rpc PhantasmaRPC) GetAddressTransactions(address string, page int, pageSize int) (resp.PaginatedResult[resp.AddressTransactionsResult], error) {
+	var addressTxs resp.PaginatedResult[resp.AddressTransactionsResult]
 	result, err := rpc.client.Call(context.Background(), "getAddressTransactions", address, page, pageSize)
 
 	if err := checkError(err, result.Error); err != nil {
-		return resp.PaginatedResult{}, err
+		return resp.PaginatedResult[resp.AddressTransactionsResult]{}, err
 	}
 
 	err = result.GetObject(&addressTxs)
 	if err != nil {
-		return resp.PaginatedResult{}, err
+		return resp.PaginatedResult[resp.AddressTransactionsResult]{}, err
 	}
 
 	return addressTxs, nil

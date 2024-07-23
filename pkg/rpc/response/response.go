@@ -221,13 +221,13 @@ type AccountTransactionsResult struct {
 }
 
 // PaginatedResult comment
-type PaginatedResult struct {
+type PaginatedResult[T any] struct {
 	Page       uint `json:"page"`
 	PageSize   uint `json:"pageSize"`
 	Total      uint `json:"total"`
 	TotalPages uint `json:"totalPages"`
 
-	Result interface{} `json:"result"`
+	Result T `json:"result"`
 }
 
 // BlockResult comment

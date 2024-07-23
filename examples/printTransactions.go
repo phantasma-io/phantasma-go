@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"time"
-
-	"github.com/phantasma-io/phantasma-go/pkg/rpc/response"
 )
 
 func printTransactionsCount(address string) {
@@ -24,7 +22,7 @@ func printTransactions(address string, page, pageSize int) {
 		panic("GetAddressTransactions call failed! Error: " + err.Error())
 	} else {
 		fmt.Println("Transactions:")
-		txs := transactions.Result.(*response.AddressTransactionsResult).Txs
+		txs := transactions.Result.Txs
 		for i := 0; i < len(txs); i += 1 {
 			fmt.Println("#", i+1, ": ", txs[i].Hash, " timestamp: ", time.Unix(int64(txs[i].Timestamp), 0))
 		}
