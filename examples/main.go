@@ -45,6 +45,7 @@ func menu() {
 				"send tokens",
 				"staking",
 				"list last 10 transactions",
+				"chain stats",
 				"logout"})
 
 		switch menuIndex {
@@ -61,6 +62,8 @@ func menu() {
 		case 6:
 			listLast10Transactions()
 		case 7:
+			chainStats()
+		case 8:
 			logout = true
 		}
 	}
@@ -133,6 +136,17 @@ func staking() {
 func listLast10Transactions() {
 	printTransactionsCount(keyPair.Address().String())
 	printTransactions(keyPair.Address().String(), 1, 10)
+}
+
+func chainStats() {
+	menuIndex, _ := PromptIndexedMenu("CHAIN STATS MENU:", []string{"soulmasters count", "go back"})
+
+	switch menuIndex {
+	case 1:
+		printSoulmastersCount()
+	case 2:
+		return
+	}
 }
 
 func main() {
