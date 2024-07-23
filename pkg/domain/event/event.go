@@ -220,7 +220,7 @@ func (e Event) String() string {
 }
 
 // Serialize implements ther Serializable interface
-func (e Event) Serialize(writer io.BinWriter) {
+func (e *Event) Serialize(writer io.BinWriter) {
 	writer.WriteB(byte(e.Kind))
 	e.Address.Serialize(writer)
 	writer.WriteString(e.Contract)
@@ -228,7 +228,7 @@ func (e Event) Serialize(writer io.BinWriter) {
 }
 
 // Deserialize implements ther Serializable interface
-func (e Event) Deserialize(reader io.BinReader) {
+func (e *Event) Deserialize(reader io.BinReader) {
 	e.Kind = EventKind(reader.ReadU32LE())
 	e.Address.Deserialize(reader)
 	e.Contract = reader.ReadString()
