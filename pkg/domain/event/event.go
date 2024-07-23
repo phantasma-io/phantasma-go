@@ -139,6 +139,10 @@ var eventLookup = map[EventKind]string{
 	Custom:             `Custom`,
 }
 
+func (k EventKind) String() string {
+	return eventLookup[k]
+}
+
 const (
 	Fixed   TypeAuction = 0
 	Classic TypeAuction = 1
@@ -153,22 +157,21 @@ type OrganizationEventData struct {
 
 type TokenEventData struct {
 	Symbol    string
-	Value     big.Int
+	Value     *big.Int
 	ChainName string
 }
 
 // Serialize implements ther Serializable interface
-func (te TokenEventData) Serialize(writer io.BinWriter) {
+func (te *TokenEventData) Serialize(writer *io.BinWriter) {
 	writer.WriteString(te.Symbol)
 	writer.WriteVarBytes(te.Value.Bytes())
 	writer.WriteString(te.ChainName)
 }
 
 // Deserialize implements ther Serializable interface
-func (te TokenEventData) Deserialize(reader io.BinReader) {
+func (te *TokenEventData) Deserialize(reader *io.BinReader) {
 	te.Symbol = reader.ReadString()
-	var val big.Int
-	te.Value = *val.SetBytes(reader.ReadVarBytes())
+	te.Value = reader.ReadNumber()
 	te.ChainName = reader.ReadString()
 }
 
