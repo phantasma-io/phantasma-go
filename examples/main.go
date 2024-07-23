@@ -139,12 +139,15 @@ func listLast10Transactions() {
 }
 
 func chainStats() {
-	menuIndex, _ := PromptIndexedMenu("CHAIN STATS MENU:", []string{"soulmasters count", "go back"})
+	menuIndex, _ := PromptIndexedMenu("CHAIN STATS MENU:", []string{"latest block height", "soulmasters count", "go back"})
 
 	switch menuIndex {
 	case 1:
-		printSoulmastersCount()
+		height, _ := client.GetBlockHeight("main")
+		fmt.Println("Latest block height:", height)
 	case 2:
+		printSoulmastersCount()
+	case 3:
 		return
 	}
 }

@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"fmt"
+	"math/big"
 
 	"context"
 
@@ -156,6 +157,24 @@ func (rpc PhantasmaRPC) GetAddressTransactionCount(address string, chainName str
 	}
 
 	return count, nil
+}
+
+// GetBlockHeight Returns height of the latest block minted on the chain
+func (rpc PhantasmaRPC) GetBlockHeight(chainName string) (*big.Int, error) {
+	var resultValue string
+	result, err := rpc.client.Call(context.Background(), "getBlockHeight", chainName)
+
+	if err := checkError(err, result.Error); err != nil {
+		return big.NewInt(0), err
+	}
+
+	err = result.GetObject(&resultValue)
+	if err != nil {
+		return big.NewInt(0), err
+	}
+
+	height, _ := big.NewInt(0).SetString(resultValue, 10)
+	return height, nil
 }
 
 // InvokeRawScript comment
