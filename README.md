@@ -279,6 +279,55 @@ for {
 }
 ```
 
+## Staking SOUL token
+
+Following code shows how to stake SOUL token:
+
+```
+// Build script
+sb := scriptbuilder.BeginScript().
+    AllowGas(address, crypto.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
+    Stake(address, tokenAmount).
+    SpendGas(address)
+script := sb.EndScript()
+
+// Build transaction
+expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
+tx := chain.NewTransaction(netSelected, "main", script, uint32(expire), domain.SDKPayload)
+
+// Sign transaction
+tx.Sign(keyPair)
+
+// Before sending script to the chain we need to encode it into Base16 encoding (HEX)
+txHex := hex.EncodeToString(tx.Bytes(true))
+
+txHash, err := client.SendRawTransaction(txHex)
+if err != nil {
+    panic("Broadcasting tx failed! Error: " + err.Error())
+} else {
+    if util.ErrorDetect(txHash) {
+        panic("Broadcasting tx failed! Error: " + txHash)
+    } else {
+        fmt.Println("Tx successfully broadcasted! Tx hash: " + txHash)
+    }
+}
+
+for {
+    txResult, _ := client.GetTransaction(txHash)
+
+    if txResult.StateIsSuccess() {
+        fmt.Println("Transaction was successfully minted, tx hash: " + fmt.Sprint(txResult.Hash))
+        break // Funds were transferred successfully
+    }
+    if txResult.StateIsFault() {
+        fmt.Println("Transaction failed, tx hash: " + fmt.Sprint(txResult.Hash))
+        break // Funds were not transferred, transaction failed
+    }
+
+    time.Sleep(200 * time.Millisecond)
+}
+```
+
 ## Scanning the blockchain for incoming transactions
 
 In the following code we monitor the blockchain by checking all the new blocks minted on the blockchain and waiting for `TokenReceive` event for given address. This event for address means that address has received some tokens.
