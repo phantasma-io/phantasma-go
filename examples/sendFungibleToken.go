@@ -8,6 +8,7 @@ import (
 
 	chain "github.com/phantasma-io/phantasma-go/pkg/blockchain"
 	crypto "github.com/phantasma-io/phantasma-go/pkg/cryptography"
+	"github.com/phantasma-io/phantasma-go/pkg/domain"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
 	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
@@ -22,7 +23,7 @@ func sendFungibleToken(tokenSymbol, to string, tokenAmount *big.Int) {
 
 	// build tx
 	expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
-	tx := chain.NewTransaction(netSelected, "main", script, uint32(expire), []byte("GO-SDK-v0.2"))
+	tx := chain.NewTransaction(netSelected, "main", script, uint32(expire), domain.SDKPayload)
 
 	// sign tx
 	tx.Sign(keyPair)
