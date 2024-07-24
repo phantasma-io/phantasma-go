@@ -13,7 +13,7 @@
 
 This project aims to be an easy to use SDK for the Phantasma blockchain.
 
-# Getting started
+# Documentation
 
 ## Installation
 
@@ -23,9 +23,7 @@ PhantasmaGo is distributed as a library that includes all the functionality prov
 go get -u github.com/phantasma-io/phantasma-go
 ```
 
-## Documentation
-
-### Getting started
+## Getting started
 To start interacting with Phantasma blockchain you need to choose network you are planning to use (mainnet or testnet) and create corresponding RPC client.
 
 Creation of testnet RPC client:
@@ -75,7 +73,7 @@ if t.IsFungible() {
 
 Code samples in the following sections of this documentation use `client` and `keyPair` structures and method `getChainToken` which should be initialized in advance.
 
-### Script Builder
+## Script Builder
 
 Building a script is the most important part of interacting with the Phantasma blockchain. Without a propper script, the Phantasma blockchain will not know what you are trying to do.
 
@@ -93,7 +91,7 @@ You can find out all the diffrent `CallInterop` functions below.
 
 For `CallContract`, you will have to look through the ABI's of all the diffrent smart contracts currently deployed on the Phantasma 'mainnet': [Link Here](https://explorer.phantasma.info/en/nexus?tab=contracts). To see all methods of a contract, for example `stake`, you can check it with explorer: [Link Here](https://explorer.phantasma.info/en/contract?id=stake&tab=methods).
 
-#### Examples
+### Examples
 
 Following code generates script to transfer `tokenAmount` amount of token `tokenSymbol` from wallet `from` to wallet `to`
 ```
@@ -122,7 +120,7 @@ sb := scriptbuilder.BeginScript().
 script := sb.EndScript()
 ```
 
-### Script Builder Extensions
+## Script Builder Extensions
 
 For some widely used contract calls SDK has special extension methods which make code more compact. Here's the list of available extensions:
 
@@ -154,7 +152,7 @@ func (s ScriptBuilder) TransferTokens(symbol, from, to string, amount *big.Int)
 func (s ScriptBuilder) TransferBalance(symbol, from, to string)
 ```
 
-#### Examples
+### Examples
 
 We can rewrite examples from previous section using `AllowGas()` and `SpendGas()` extensions:
 
@@ -190,7 +188,7 @@ sb := scriptbuilder.BeginScript().
 script := sb.EndScript()
 ```
 
-### InvokeRawScript and decoding the result
+## InvokeRawScript and decoding the result
 
 Scripts which does not require transaction can be sent to the chain directly using `InvokeRawScript()` call.
 
@@ -217,9 +215,9 @@ if err != nil {
 fmt.Println("Current SoulMasters count: ", result.DecodeResult().AsNumber().String())
 ```
 
-### Building and sending transaction
+## Building and sending transaction
 
-#### Building transaction
+### Building transaction
 To build a transaction you will first need to build a script.
 
 Note, building a transaction is for transactional scripts only. Non transactional scripts should use the RPC function `InvokeRawScript()`.
@@ -243,7 +241,7 @@ tx.Sign(keyPair)
 txHex := hex.EncodeToString(tx.Bytes(true))
 ```
 
-#### Sending transaction
+### Sending transaction
 
 Here we send transaction prepared in previous block of code and stored as HEX in `txHex` variable.
 
@@ -260,7 +258,7 @@ if err != nil {
 }
 ```
 
-#### Waiting for transaction execution result
+### Waiting for transaction execution result
 
 We need to wait for transaction to be minted on the chain to get its status:
 
@@ -282,7 +280,7 @@ for {
 ```
 
 
-## Contributing
+# Contributing
 
 Feel free to contribute to this project after reading the
 [contributing guidelines](CONTRIBUTING.md).
