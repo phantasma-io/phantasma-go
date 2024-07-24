@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 func waitForTransactionResult(txHash string) {
@@ -20,5 +21,7 @@ func waitForTransactionResult(txHash string) {
 			fmt.Println("Transaction failed, tx hash: " + fmt.Sprint(txResult.Hash))
 			break // Funds were not transferred
 		}
+
+		time.Sleep(200 * time.Millisecond)
 	}
 }

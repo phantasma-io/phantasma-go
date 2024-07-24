@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/phantasma-io/phantasma-go/pkg/domain/event"
 	"github.com/phantasma-io/phantasma-go/pkg/io"
@@ -47,6 +48,8 @@ func waitForIncomingTransfers(address string) {
 				height = height.Add(height, big.NewInt(1))
 				break
 			}
+
+			time.Sleep(200 * time.Millisecond)
 		}
 	}
 }
