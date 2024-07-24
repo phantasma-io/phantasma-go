@@ -394,6 +394,35 @@ func waitForIncomingTransfers(address string) {
 }
 ```
 
+## Examples
+
+This repository has `examples` folder with some code which can be easily reused. Examples are grouped into a single console application.
+
+To run this application switch to `examples` folder and run:
+
+```
+go run .
+```
+
+or
+
+```
+sh run.sh
+```
+
+Application entry point is `main()` function in `main.go` source file. Once launched it will display the following menu:
+
+![image](https://github.com/user-attachments/assets/42c7f5a5-41ea-4dfa-9a05-45028c563be6)
+
+Wallet submenu:
+
+![image](https://github.com/user-attachments/assets/c6484554-3be8-415d-a8a0-1d885d0f9a37)
+
+Chain stats submenu:
+
+![image](https://github.com/user-attachments/assets/7a1c0fec-9b92-4a8a-8e16-cd54f42b066f)
+
+
 # Contributing
 
 Feel free to contribute to this project after reading the
