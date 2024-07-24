@@ -11,6 +11,7 @@ type VMObject struct {
 	Data interface{}
 }
 
+// AsNumber() returns value stored in vm.VMObject structure, in .Data field, as a *big.Int number
 func (v *VMObject) AsNumber() *big.Int {
 	// TODO timestamp is not yet supported here
 	//if ((this.Type == VMType.Object || this.Type == VMType.Timestamp) && (Data is Timestamp))

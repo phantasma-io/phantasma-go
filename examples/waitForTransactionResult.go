@@ -8,9 +8,6 @@ import (
 func waitForTransactionResult(txHash string) {
 	for {
 		txResult, _ := client.GetTransaction(txHash)
-		//if err != nil {
-		//	fmt.Println("err: " + err.Error())
-		//}
 		fmt.Println("Tx state: " + fmt.Sprint(txResult.State))
 
 		if txResult.StateIsSuccess() {
@@ -19,7 +16,7 @@ func waitForTransactionResult(txHash string) {
 		}
 		if txResult.StateIsFault() {
 			fmt.Println("Transaction failed, tx hash: " + fmt.Sprint(txResult.Hash))
-			break // Funds were not transferred
+			break // Funds were not transferred, transaction failed
 		}
 
 		time.Sleep(200 * time.Millisecond)

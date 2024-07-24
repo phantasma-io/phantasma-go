@@ -14,23 +14,23 @@ import (
 )
 
 func stakeSoulToken(address string, tokenAmount *big.Int) {
-	// build script
+	// Build script
 	sb := scriptbuilder.BeginScript().
 		AllowGas(address, crypto.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
 		Stake(address, tokenAmount).
 		SpendGas(address)
 	script := sb.EndScript()
 
-	// build tx
+	// Build transaction
 	expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
 	tx := chain.NewTransaction(netSelected, "main", script, uint32(expire), domain.SDKPayload)
 
-	// sign tx
+	// Sign transaction
 	tx.Sign(keyPair)
 
 	fmt.Println("Tx script: " + hex.EncodeToString(script))
 
-	// encode tx as hex
+	// Before sending script to the chain we need to encode it into Base16 encoding (HEX)
 	txHex := hex.EncodeToString(tx.Bytes(true))
 
 	fmt.Println("Tx: " + txHex)

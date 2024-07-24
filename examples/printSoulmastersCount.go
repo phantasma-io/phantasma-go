@@ -8,11 +8,12 @@ import (
 )
 
 func printSoulmastersCount() {
-	// build script
+	// Build script
 	sb := scriptbuilder.BeginScript().
 		CallContract("stake", "GetMasterCount")
 	script := sb.EndScript()
 
+	// Before sending script to the chain we need to encode it into Base16 encoding (HEX)
 	encodedScript := hex.EncodeToString(script)
 	fmt.Println("Script: " + encodedScript)
 
@@ -20,6 +21,7 @@ func printSoulmastersCount() {
 		return
 	}
 
+	// Make the call itself
 	result, err := client.InvokeRawScript("main", encodedScript)
 
 	if err != nil {
