@@ -116,7 +116,7 @@ address := "put caller address here" // Phantasma address, starting with capital
 tokenAmount := big.NewInt(1000000000) // Token amount in the form of big integer
 
 sb := scriptbuilder.BeginScript().
-    CallContract("gas", "AllowGas", address, crypto.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
+    CallContract("gas", "AllowGas", address, cryptography.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
     CallContract("stake", "Stake", address, tokenAmount).
     CallContract("gas", "SpendGas", address)
 script := sb.EndScript()
@@ -192,7 +192,7 @@ script := sb.EndScript()
 
 ### InvokeRawScript and decoding the result
 
-Scripts which does not require transaction can be sent to the chain directly using `InvokeRawScript` call.
+Scripts which does not require transaction can be sent to the chain directly using `InvokeRawScript()` call.
 
 Here's an example of such call to get SoulMaster count from the chain:
 
@@ -216,6 +216,71 @@ if err != nil {
 // `AsNumber()` returns value stored in `vm.VMObject` structure, in `.Data` field, as a *big.Int number (in our case value is stored in `vm.VMObject` as big integer serialized into byte array)
 fmt.Println("Current SoulMasters count: ", result.DecodeResult().AsNumber().String())
 ```
+
+### Building and sending transaction
+
+#### Building transaction
+To build a transaction you will first need to build a script.
+
+Note, building a transaction is for transactional scripts only. Non transactional scripts should use the RPC function `InvokeRawScript()`.
+
+```
+// Build script
+sb := scriptbuilder.BeginScript()
+script := sb.AllowGas(keyPair.Address().String(), cryptography.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
+    TransferTokens(tokenSymbol, keyPair.Address().String(), to, tokenAmount).
+    SpendGas(keyPair.Address().String()).
+    EndScript()
+
+// Build transaction
+expire := time.Now().UTC().Add(time.Second * time.Duration(30)).Unix()
+tx := blockchain.NewTransaction(netSelected, "main", script, uint32(expire), domain.SDKPayload)
+
+// Sign transaction
+tx.Sign(keyPair)
+
+// Before sending script to the chain we need to encode it into Base16 encoding (HEX)
+txHex := hex.EncodeToString(tx.Bytes(true))
+```
+
+#### Sending transaction
+
+Here we send transaction prepared in previous block of code and stored as HEX in `txHex` variable.
+
+```
+txHash, err := client.SendRawTransaction(txHex)
+if err != nil {
+    panic("Broadcasting tx failed! Error: " + err.Error())
+} else {
+    if util.ErrorDetect(txHash) {
+        panic("Broadcasting tx failed! Error: " + txHash)
+    } else {
+        fmt.Println("Tx successfully broadcasted! Tx hash: " + txHash)
+    }
+}
+```
+
+#### Waiting for transaction execution result
+
+We need to wait for transaction to be minted on the chain to get its status:
+
+```
+for {
+    txResult, _ := client.GetTransaction(txHash)
+
+    if txResult.StateIsSuccess() {
+        fmt.Println("Transaction was successfully minted, tx hash: " + fmt.Sprint(txResult.Hash))
+        break // Funds were transferred successfully
+    }
+    if txResult.StateIsFault() {
+        fmt.Println("Transaction failed, tx hash: " + fmt.Sprint(txResult.Hash))
+        break // Funds were not transferred, transaction failed
+    }
+
+    time.Sleep(200 * time.Millisecond)
+}
+```
+
 
 ## Contributing
 
