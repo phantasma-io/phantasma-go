@@ -11,13 +11,7 @@
 
 # Overview
 
-This project aims to be an easy to use SDK for the Phantasma blockchain. It could possibly evolve to a full 
-node replacement. The goal is to be fully compatible with the original [Phantasma-io](https://github.com/phantasma-io)
-implementation.
-
-- [RPC client](docs/rpc.md)
-- [Script builder](docs/sriptbuilder.md)
-- [Utils](docs/utils.md)
+This project aims to be an easy to use SDK for the Phantasma blockchain.
 
 # Getting started
 
@@ -44,7 +38,42 @@ Creation of mainnet RPC client:
 client = rpc.NewRPCMainnet()
 ```
 
-Code samples in the following sections of this documentation use `client` object which should be initialized in advance.
+To create a new key pair structure from private key in WIF format use following code:
+```
+keyPair, err := cryptography.FromWIF("put WIF here")
+if err != nil {
+    panic("Creating keyPair failed!")
+}
+```
+
+To get detailed description of tokens deployed on the chain you can use following code:
+
+```
+var chainTokens []response.TokenResult
+
+func getChainToken(symbol string) response.TokenResult {
+    for _, t := range chainTokens {
+        if t.Symbol == symbol {
+            return t
+        }
+    }
+
+    panic("Token not found")
+}
+
+chainTokens, _ = client.GetTokens(false)
+```
+
+This will allow you to get token characteristics this way:
+
+```
+t := getChainToken("SOUL")
+if t.IsFungible() {
+    fmt.Println("Token SOUL is fungible")
+}
+```
+
+Code samples in the following sections of this documentation use `client` and `keyPair` structures and method `getChainToken` which should be initialized in advance.
 
 ### Script Builder
 
@@ -159,6 +188,33 @@ sb := scriptbuilder.BeginScript().
     Stake(address, tokenAmount).
     SpendGas(address)
 script := sb.EndScript()
+```
+
+### InvokeRawScript and decoding the result
+
+Scripts which does not require transaction can be sent to the chain directly using `InvokeRawScript` call.
+
+Here's an example of such call to get SoulMaster count from the chain:
+
+```
+// Build script
+sb := scriptbuilder.BeginScript().
+    CallContract("stake", "GetMasterCount")
+script := sb.EndScript()
+
+// Before sending script to the chain we need to encode it into Base16 encoding (HEX)
+encodedScript := hex.EncodeToString(script)
+
+// Make the call itself
+result, err := client.InvokeRawScript("main", encodedScript)
+
+if err != nil {
+    panic("Script invocation failed! Error: " + err.Error())
+}
+
+// `DecodeResult()` decodes HEX-encoded byte array result, stored in `.Result` field, into `vm.VMObject` structure
+// `AsNumber()` returns value stored in `vm.VMObject` structure, in `.Data` field, as a *big.Int number (in our case value is stored in `vm.VMObject` as big integer serialized into byte array)
+fmt.Println("Current SoulMasters count: ", result.DecodeResult().AsNumber().String())
 ```
 
 ## Contributing
