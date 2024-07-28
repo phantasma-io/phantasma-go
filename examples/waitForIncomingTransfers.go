@@ -42,10 +42,7 @@ func waitForIncomingTransfers(address string) {
 
 					// Decode event data into event.TokenEventData structure
 					decoded, _ := hex.DecodeString(e.Data)
-					br := io.NewBinReaderFromBuf(decoded)
-
-					var data event.TokenEventData
-					data.Deserialize(br)
+					data := io.Deserialize[*event.TokenEventData](decoded, &event.TokenEventData{})
 
 					// Apply decimals to the token amount
 					t := getChainToken(data.Symbol)

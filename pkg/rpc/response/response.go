@@ -381,11 +381,7 @@ type ScriptResult struct {
 // DecodeResult() decodes HEX-encoded byte array result, stored in .Result field, into vm.VMObject structure
 func (s ScriptResult) DecodeResult() *vm.VMObject {
 	decoded, _ := hex.DecodeString(s.Result)
-	br := io.NewBinReaderFromBuf(decoded)
-
-	var vmObject vm.VMObject
-	vmObject.Deserialize(br)
-	return &vmObject
+	return io.Deserialize[*vm.VMObject](decoded, &vm.VMObject{})
 }
 
 // ArchiveResult comment

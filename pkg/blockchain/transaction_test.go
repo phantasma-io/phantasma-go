@@ -61,5 +61,27 @@ func TestTxSerialization(t *testing.T) {
 	assert.Equal(t, tx, newTx)
 }
 
+func TestTxSerialization2(t *testing.T) {
+	tx0 := NewTransaction("mainnet", "main", []byte{0x01, 0x02, 0x03}, 1623519055, nil)
+	tx := &tx0
+	assert.Equal(t, "mainnet", tx.NexusName)
+	assert.Equal(t, "main", tx.ChainName)
+	assert.Equal(t, tx.Hash.String(), "b049d3bf5449191d3eb8ea3ea9cdace3712775d509c96ff8743266298e4b077a")
+	assert.Equal(t, []byte{7, 109, 97, 105, 110, 110, 101, 116, 4, 109, 97, 105, 110, 3, 1, 2, 3, 79, 239, 196, 96, 0}, tx.BytesEx(false))
+
+	bytes := io.Serialize(tx)
+	newTx := io.Deserialize[*Transaction](bytes, &Transaction{})
+
+	assert.Equal(t, tx.ChainName, newTx.ChainName)
+	assert.Equal(t, tx.NexusName, newTx.NexusName)
+	assert.Equal(t, tx.Hash, newTx.Hash)
+	assert.Equal(t, tx.Script, newTx.Script)
+	assert.Equal(t, tx.Signatures, newTx.Signatures)
+	assert.Equal(t, tx.Payload, newTx.Payload)
+
+	// just to be sure
+	assert.Equal(t, tx, newTx)
+}
+
 //TODO
 //func TestTxMine(t *testing.T) {}

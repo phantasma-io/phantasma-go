@@ -1,5 +1,9 @@
 package io
 
+import (
+	"bytes"
+)
+
 // Serializer defines the binary encoding/decoding interface. Errors are
 // returned via BinReader/BinWriter Err field. These functions must have safe
 // behavior when passed BinReader/BinWriter with Err already set. Invocations
@@ -17,6 +21,26 @@ type deserializable interface {
 
 type serializable interface {
 	Serialize(*BinWriter)
+}
+
+func Deserialize[T deserializable](data []byte, object T) T {
+	br := NewBinReaderFromBuf(data)
+
+	object.Deserialize(br)
+	return object
+}
+
+func Serialize[T serializable](object T) []byte {
+	b := new(bytes.Buffer)
+	bw := NewBinWriterFromIO(b)
+
+	object.Serialize(bw)
+
+	if bw.Err != nil {
+		return nil
+	}
+
+	return b.Bytes()
 }
 
 // Generic serializer/deserializer - unfished, not sure if worth finishing
