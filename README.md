@@ -238,7 +238,7 @@ tx := blockchain.NewTransaction(netSelected, "main", script, uint32(expire), dom
 tx.Sign(keyPair)
 
 // Before sending script to the chain we need to encode it into Base16 encoding (HEX)
-txHex := hex.EncodeToString(tx.Bytes(true))
+txHex := hex.EncodeToString(tx.Bytes())
 ```
 
 ### Sending transaction
@@ -299,7 +299,7 @@ tx := chain.NewTransaction(netSelected, "main", script, uint32(expire), domain.S
 tx.Sign(keyPair)
 
 // Before sending script to the chain we need to encode it into Base16 encoding (HEX)
-txHex := hex.EncodeToString(tx.Bytes(true))
+txHex := hex.EncodeToString(tx.Bytes())
 
 txHash, err := client.SendRawTransaction(txHex)
 if err != nil {

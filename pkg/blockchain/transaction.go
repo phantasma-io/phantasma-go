@@ -48,7 +48,7 @@ func NewTransaction(nexusName, chainName string, script []byte, timestamp uint32
 
 // updateHash sets the hash of the transaction
 func (tx *Transaction) updateHash() {
-	data := tx.Bytes(false)
+	data := tx.BytesEx(false)
 	bytes := hashing.Sha256(data)
 	hash, err := cryptography.HashFromBytes(bytes)
 	if err != nil {
@@ -62,8 +62,7 @@ func (tx *Transaction) HasSignatures() bool {
 	return len(tx.Signatures) > 0
 }
 
-// Serialize implements ther Serializable interface
-func (tx *Transaction) Serialize(writer *io.BinWriter, withSignatures bool) {
+func (tx *Transaction) SerializeEx(writer *io.BinWriter, withSignatures bool) {
 	writer.WriteString(tx.NexusName)
 	writer.WriteString(tx.ChainName)
 	writer.WriteVarBytes(tx.Script)
@@ -81,6 +80,11 @@ func (tx *Transaction) Serialize(writer *io.BinWriter, withSignatures bool) {
 			signature.Serialize(writer)
 		}
 	}
+}
+
+// Serialize implements ther Serializable interface
+func (tx *Transaction) Serialize(writer *io.BinWriter) {
+	tx.SerializeEx(writer, true)
 }
 
 // Deserialize implements ther Serializable interface
@@ -105,10 +109,16 @@ func (tx *Transaction) String() string {
 	return tx.Hash.String()
 }
 
-// Bytes a
-func (tx *Transaction) Bytes(withSignatures bool) []byte {
+func (tx *Transaction) BytesEx(withSignatures bool) []byte {
 	bw := *io.NewBufBinWriter()
-	tx.Serialize(bw.BinWriter, withSignatures)
+	tx.SerializeEx(bw.BinWriter, withSignatures)
+	return bw.Bytes()
+}
+
+// Bytes a
+func (tx *Transaction) Bytes() []byte {
+	bw := *io.NewBufBinWriter()
+	tx.Serialize(bw.BinWriter)
 	return bw.Bytes()
 }
 
@@ -118,7 +128,7 @@ func (tx *Transaction) Sign(keyPair crypto.KeyPair) {
 		panic("KeyPair can't be nil!")
 	}
 
-	msg := tx.Bytes(false)
+	msg := tx.BytesEx(false)
 
 	signature := keyPair.Sign(msg)
 
@@ -131,7 +141,7 @@ func (tx *Transaction) IsSignedBy(addresses []crypto.Address) bool {
 		return false
 	}
 
-	msg := tx.Bytes(false)
+	msg := tx.BytesEx(false)
 
 	for _, signature := range tx.Signatures {
 		if signature.Verify(msg, addresses) {

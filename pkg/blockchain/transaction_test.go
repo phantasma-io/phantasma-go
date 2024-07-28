@@ -41,10 +41,10 @@ func TestTxSerialization(t *testing.T) {
 	assert.Equal(t, "mainnet", tx.NexusName)
 	assert.Equal(t, "main", tx.ChainName)
 	assert.Equal(t, tx.Hash.String(), "b049d3bf5449191d3eb8ea3ea9cdace3712775d509c96ff8743266298e4b077a")
-	assert.Equal(t, []byte{7, 109, 97, 105, 110, 110, 101, 116, 4, 109, 97, 105, 110, 3, 1, 2, 3, 79, 239, 196, 96, 0}, tx.Bytes(false))
+	assert.Equal(t, []byte{7, 109, 97, 105, 110, 110, 101, 116, 4, 109, 97, 105, 110, 3, 1, 2, 3, 79, 239, 196, 96, 0}, tx.BytesEx(false))
 
 	bw := *io.NewBufBinWriter()
-	tx.Serialize(bw.BinWriter, false)
+	tx.SerializeEx(bw.BinWriter, false)
 	bytes := bw.Bytes()
 
 	newTx := Transaction{}

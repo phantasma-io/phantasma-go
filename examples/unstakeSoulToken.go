@@ -31,7 +31,7 @@ func unstakeSoulToken(address string, tokenAmount *big.Int) {
 	fmt.Println("Tx script: " + hex.EncodeToString(script))
 
 	// encode tx as hex
-	txHex := hex.EncodeToString(tx.Bytes(true))
+	txHex := hex.EncodeToString(tx.Bytes())
 
 	fmt.Println("Tx: " + txHex)
 
