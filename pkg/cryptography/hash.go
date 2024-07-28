@@ -126,11 +126,11 @@ func (h Hash) GetDifficulty() int {
 }
 
 // Serialize implements ther Serializable interface
-func (h Hash) Serialize(writer io.BinWriter) {
+func (h Hash) Serialize(writer *io.BinWriter) {
 	writer.WriteBytes(h._data)
 }
 
 // Deserialize implements ther Serializable interface
-func (h Hash) Deserialize(reader io.BinReader) {
+func (h Hash) Deserialize(reader *io.BinReader) {
 	reader.ReadBytes(h._data)
 }

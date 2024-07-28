@@ -190,11 +190,11 @@ func (a Address) BytesPrefixed() []byte {
 }
 
 // Serialize implements ther Serializable interface
-func (a *Address) Serialize(writer io.BinWriter) {
+func (a *Address) Serialize(writer *io.BinWriter) {
 	writer.WriteVarBytes(a.data)
 }
 
 // Deserialize implements ther Serializable interface
-func (a *Address) Deserialize(reader io.BinReader) {
+func (a *Address) Deserialize(reader *io.BinReader) {
 	a.data = reader.ReadVarBytes()
 }
