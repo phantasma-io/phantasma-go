@@ -31,7 +31,7 @@ type Address struct {
 
 	// Code to run in PhantasmaVM for this transaction.
 	data []byte
-	Text string
+	text string
 	kind AddressKind
 }
 
@@ -39,6 +39,26 @@ var Null []byte = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0}
+
+// Text returns (and initializes if needed) raw text representation of the address. For null address it returns nil. In most cases use String() instead to get text address, which returns "NULL" string for null addresses.
+func (a Address) Text() string {
+	if a.text != "" {
+		return a.text
+	}
+
+	var prefix string
+	switch kind := a.Kind(); kind {
+	case User:
+		prefix = "P"
+	case Interop:
+		prefix = "X"
+	default:
+		prefix = "S"
+	}
+
+	a.text = prefix + base58.Encode(a.data)
+	return a.text
+}
 
 // NewAddress returns a new Address object
 func NewAddress(pubKey []byte) Address {
@@ -53,18 +73,6 @@ func NewAddress(pubKey []byte) Address {
 
 	address := Address{}
 	address.data = pubKey
-
-	var prefix string
-	switch kind := address.Kind(); kind {
-	case User:
-		prefix = "P"
-	case Interop:
-		prefix = "X"
-	default:
-		prefix = "S"
-	}
-
-	address.Text = prefix + base58.Encode(address.data)
 
 	return address
 }
@@ -176,7 +184,7 @@ func (a Address) String() string {
 	if a.IsNull() {
 		return "NULL"
 	}
-	return a.Text
+	return a.Text()
 }
 
 // Bytes returns the data representing an address
