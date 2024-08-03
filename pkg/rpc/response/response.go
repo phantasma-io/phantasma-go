@@ -31,6 +31,14 @@ type BalanceResult struct {
 	Ids      []string `json:"ids"`
 }
 
+func (b BalanceResult) Clone() *BalanceResult {
+	clone := b
+	clone.Ids = make([]string, len(b.Ids))
+	copy(clone.Ids, b.Ids)
+
+	return &clone
+}
+
 func (b BalanceResult) ConvertDecimals() string {
 	return util.ConvertDecimalsEx(b.Amount, int(b.Decimals), ".")
 }
@@ -132,6 +140,32 @@ type AccountResult struct {
 	Storage   StorageResult   `json:"storage"`
 	Balances  []BalanceResult `json:"balances"`
 	Txs       []string        `json:"txs"` // Deprecated, returned as an empty array by default. Use GetAddressTransactions() to get transactions for address
+}
+
+func (a AccountResult) Clone() *AccountResult {
+	clone := a
+	clone.Balances = make([]BalanceResult, len(a.Balances), len(a.Balances))
+	for i, b := range a.Balances {
+		clone.Balances[i] = *b.Clone()
+	}
+
+	clone.Txs = make([]string, len(a.Txs))
+	copy(clone.Txs, a.Txs)
+
+	return &clone
+}
+
+func (a *AccountResult) GetTokenBalance(t TokenResult) *BalanceResult {
+	for i, b := range a.Balances {
+		if b.Symbol == t.Symbol {
+			return &a.Balances[i]
+		}
+	}
+
+	b := BalanceResult{"main", "0", t.Symbol, uint(t.Decimals), []string{}}
+	a.Balances = append(a.Balances, b)
+
+	return &a.Balances[len(a.Balances)-1]
 }
 
 type AddressTransactionsResult struct {
