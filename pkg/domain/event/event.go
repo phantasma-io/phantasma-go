@@ -143,6 +143,19 @@ func (k EventKind) String() string {
 	return eventLookup[k]
 }
 
+func (k *EventKind) SetString(eventKind string) {
+	for k1, s := range eventLookup {
+		if s == eventKind {
+			*k = k1
+			return
+		}
+	}
+}
+
+func (k EventKind) IsTokenEvent() bool {
+	return k == TokenBurn || k == TokenClaim || k == TokenMint || k == TokenReceive || k == TokenSend || k == TokenStake
+}
+
 const (
 	Fixed   TypeAuction = 0
 	Classic TypeAuction = 1
