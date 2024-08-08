@@ -167,9 +167,9 @@ func (r *BinReader) ReadVarUint() uint64 {
 	return uint64(b)
 }
 
-// ReadNumber reads a big integer stored in binary form from the
+// ReadBigInteger reads a big integer stored in binary form from the
 // underlying reader.
-func (r *BinReader) ReadNumber() *big.Int {
+func (r *BinReader) ReadBigInteger() *big.Int {
 	if r.Err != nil {
 		return big.NewInt(0)
 	}

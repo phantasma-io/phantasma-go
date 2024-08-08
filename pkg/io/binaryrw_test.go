@@ -492,11 +492,11 @@ func readWriteNumberTest(t *testing.T, numberStr string) {
 	n, _ := big.NewInt(0).SetString(numberStr, 10)
 
 	w := NewBufBinWriter()
-	w.WriteNumber(n)
+	w.WriteBigInteger(n)
 
 	r := NewBinReaderFromBuf(w.Bytes())
 
-	n2 := r.ReadNumber()
+	n2 := r.ReadBigInteger()
 
 	require.NoError(t, r.Err)
 	require.Equal(t, n, n2)

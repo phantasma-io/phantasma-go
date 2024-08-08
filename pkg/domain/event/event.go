@@ -184,7 +184,7 @@ func (te *TokenEventData) Serialize(writer *io.BinWriter) {
 // Deserialize implements ther Serializable interface
 func (te *TokenEventData) Deserialize(reader *io.BinReader) {
 	te.Symbol = reader.ReadString()
-	te.Value = reader.ReadNumber()
+	te.Value = reader.ReadBigInteger()
 	te.ChainName = reader.ReadString()
 }
 

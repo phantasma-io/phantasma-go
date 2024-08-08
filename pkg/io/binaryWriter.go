@@ -142,8 +142,8 @@ func (w *BinWriter) WriteBytes(b []byte) {
 	_, w.Err = w.w.Write(b)
 }
 
-// WriteNumber writes a big integer in binary form into the underlying io.Writer.
-func (w *BinWriter) WriteNumber(n *big.Int) {
+// WriteBigInteger writes a big integer in binary form into the underlying io.Writer.
+func (w *BinWriter) WriteBigInteger(n *big.Int) {
 	if w.Err != nil {
 		return
 	}

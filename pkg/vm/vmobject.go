@@ -81,7 +81,7 @@ func (v *VMObject) Deserialize(reader *io.BinReader) {
 	case Enum:
 		v.Data = reader.ReadU32LE()
 	case Number:
-		v.Data = reader.ReadNumber()
+		v.Data = reader.ReadBigInteger()
 	case Object:
 		panic("Not implemented")
 	case String:
