@@ -7,6 +7,7 @@ import (
 	"io"
 	"math/big"
 	"reflect"
+	"slices"
 )
 
 // MaxArraySize is the maximum size of an array which can be decoded.
@@ -177,9 +178,7 @@ func (r *BinReader) ReadNumber() *big.Int {
 
 	// Converting from little-endian format, supported by Phantasma blockchain,
 	// into a big-endian unsigned integer, supported by following SetBytes() call
-	for i := 0; i < len(b)/2; i++ {
-		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
-	}
+	slices.Reverse(b)
 
 	return big.NewInt(0).SetBytes(b)
 }

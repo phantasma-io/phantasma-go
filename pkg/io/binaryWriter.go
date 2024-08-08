@@ -5,6 +5,7 @@ import (
 	"io"
 	"math/big"
 	"reflect"
+	"slices"
 )
 
 // BinWriter is a convenient wrapper around a io.Writer and err object.
@@ -150,9 +151,7 @@ func (w *BinWriter) WriteNumber(n *big.Int) {
 	b := n.Bytes()
 
 	// Converting to little-endian format, supported by Phantasma blockchain
-	for i := 0; i < len(b)/2; i++ {
-		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
-	}
+	slices.Reverse(b)
 
 	w.WriteVarBytes(b)
 }

@@ -3,6 +3,7 @@ package cryptography
 import (
 	"bytes"
 	"encoding/hex"
+	"slices"
 	"strings"
 
 	"github.com/phantasma-io/phantasma-go/pkg/io"
@@ -57,7 +58,7 @@ func ParseHash(s string) (Hash, error) {
 		return Hash{}, err
 	}
 
-	bytes = util.ArrayReverse(bytes)
+	slices.Reverse(bytes)
 	return Hash{bytes}, nil
 }
 
@@ -82,7 +83,7 @@ func (h Hash) IsNull() bool {
 
 // String creates the a base16 encoded representation of Hash
 func (h Hash) String() string {
-	data := util.ArrayReverse(h._data)
+	data := util.ArrayCloneAndReverse(h._data)
 	return hex.EncodeToString(data)
 }
 
