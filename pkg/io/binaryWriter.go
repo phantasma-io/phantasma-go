@@ -5,7 +5,8 @@ import (
 	"io"
 	"math/big"
 	"reflect"
-	"slices"
+
+	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
 // BinWriter is a convenient wrapper around a io.Writer and err object.
@@ -148,10 +149,7 @@ func (w *BinWriter) WriteBigInteger(n *big.Int) {
 		return
 	}
 
-	b := n.Bytes()
-
-	// Converting to little-endian format, supported by Phantasma blockchain
-	slices.Reverse(b)
+	b := util.BigIntToPhantasmaByteArray(n)
 
 	w.WriteVarBytes(b)
 }

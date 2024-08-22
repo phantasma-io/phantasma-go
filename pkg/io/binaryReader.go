@@ -7,7 +7,8 @@ import (
 	"io"
 	"math/big"
 	"reflect"
-	"slices"
+
+	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
 // MaxArraySize is the maximum size of an array which can be decoded.
@@ -176,11 +177,7 @@ func (r *BinReader) ReadBigInteger() *big.Int {
 
 	b := r.ReadVarBytes()
 
-	// Converting from little-endian format, supported by Phantasma blockchain,
-	// into a big-endian unsigned integer, supported by following SetBytes() call
-	slices.Reverse(b)
-
-	return big.NewInt(0).SetBytes(b)
+	return util.BigIntFromCsharpOrPhantasmaByteArray(b)
 }
 
 // ReadVarBytes reads the next set of bytes from the underlying reader.

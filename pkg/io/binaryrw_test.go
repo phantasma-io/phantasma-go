@@ -507,5 +507,19 @@ func TestBinRW_ReadWriteNumber(t *testing.T) {
 	readWriteNumberTest(t, "783269426398462946992340273")
 	readWriteNumberTest(t, "0")
 	readWriteNumberTest(t, "1")
+	readWriteNumberTest(t, "255")
+	readWriteNumberTest(t, "256")
+	readWriteNumberTest(t, "257")
 	readWriteNumberTest(t, "99999999999999999999999999999999999999999999999999")
+}
+
+func TestBinRW_ReadWriteNegativeNumber(t *testing.T) {
+	readWriteNumberTest(t, "-1000000")
+	readWriteNumberTest(t, "-783269426398462946992340273")
+	readWriteNumberTest(t, "-0")
+	readWriteNumberTest(t, "-1")
+	readWriteNumberTest(t, "-255")
+	readWriteNumberTest(t, "-256")
+	readWriteNumberTest(t, "-257")
+	readWriteNumberTest(t, "-99999999999999999999999999999999999999999999999999")
 }
