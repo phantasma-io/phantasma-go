@@ -110,12 +110,13 @@ func (v *ProofOfAddressesVerifier) VerifyMessage() (bool, string) {
 		errorMessage += "Ethereum signature is incorrect!\n"
 	}
 
-	/*	if (!ECDsa.Verify(SignedMessageBytes, Neo2SignatureBytes, Neo2PublicKeyBytes, ECDsaCurve.Secp256r1))
-		{
-		    success = false;
-		    errorMessage += "Neo Legacy signature is incorrect!\n";
-		}
+	fmt.Println(len(v.Neo2SignatureBytes))
+	if !ecdsa.Verify(v.SignedMessageBytes, v.Neo2SignatureBytes, v.Neo2PublicKeyBytes, ecdsa.Secp256r1) {
+		success = false
+		errorMessage += "Neo Legacy signature is incorrect!\n"
+	}
 
+	/*
 		var ethAddressFromPublicKey = new Poltergeist.PhantasmaLegacy.Ethereum.Util.AddressUtil().ConvertToChecksumAddress(EthereumKey.PublicKeyToAddress(EthPublicKeyBytes));
 		if (EthAddress != ethAddressFromPublicKey)
 		{

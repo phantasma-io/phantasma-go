@@ -48,7 +48,7 @@ func TestProofOfAddressesVerifier(t *testing.T) {
 	v = NewProofOfAddressesVerifier(testMessagePhaAddressIncorrect)
 	success, errorMessage = v.VerifyMessage()
 	assert.Equal(t, false, success)
-	assert.Equal(t, "Phantasma signature is incorrect!\nEthereum signature is incorrect!\n", errorMessage)
+	assert.Equal(t, "Phantasma signature is incorrect!\nEthereum signature is incorrect!\nNeo Legacy signature is incorrect!\n", errorMessage)
 
 	v = NewProofOfAddressesVerifier(testMessagePhaSignatureIncorrect)
 	success, errorMessage = v.VerifyMessage()
