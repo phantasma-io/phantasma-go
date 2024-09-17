@@ -33,6 +33,18 @@ func CompressPublicKey(uncompressedPublicKey []byte) []byte {
 	return append([]byte{prefix}, x.Bytes()...)
 }
 
+func DecompressPublicKey(compressedPublicKey []byte, curve ECDsaCurve) ([]byte, error) {
+	if curve == Secp256k1 {
+		x, y := secp256k1.DecompressPubkey(compressedPublicKey)
+
+		uncompressedPubkey := append(x.Bytes(), y.Bytes()...)
+		uncompressedPubkey = UncompressedPublicKeyTo65Bytes(uncompressedPubkey)
+		return uncompressedPubkey, nil
+	} else {
+		return nil, errors.New("Not implemented")
+	}
+}
+
 // Removes recovery ID from signature's byte array in 65-byte [R || S || V] format
 func SignatureDropRecoveryId(signature []byte) []byte {
 

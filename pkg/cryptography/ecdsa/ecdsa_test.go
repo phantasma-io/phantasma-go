@@ -11,6 +11,7 @@ import (
 var testMessage string = "test message"
 
 // Eth address 0xDf738B927DA923fe0A5Fd3aD2192990C68913e6a
+var pubKeyCompressed string = "025D3F7F469803C68C12B8F731576C74A9B5308484FD3B425D87C35CAED0A2E398"
 var pubKey string = "5d3f7f469803c68c12b8f731576c74a9b5308484fd3b425d87c35caed0a2e398c7ac626d916a1d65e23f673a55e6b16ffc1abd673f3ef6ae8d5e6a0f99784a56"
 var pubKey65 string = "045d3f7f469803c68c12b8f731576c74a9b5308484fd3b425d87c35caed0a2e398c7ac626d916a1d65e23f673a55e6b16ffc1abd673f3ef6ae8d5e6a0f99784a56"
 var privKey string = "4ed773e5c8edc0487acef0011bc9ae8228287d4843f9d8477ff77c401ac59a49"
@@ -33,6 +34,16 @@ func TestUncompressedPublicKeyTo65Bytes(t *testing.T) {
 
 	assert.Equal(t, pubKey65, hex.EncodeToString(result))
 	assert.Equal(t, result, result2)
+}
+
+func TestCompressedPublicKeyDecompression(t *testing.T) {
+	pubKeyBytes, err := hex.DecodeString(pubKeyCompressed)
+	if err != nil {
+		panic(err)
+	}
+	pubKeyBytes, err = DecompressPublicKey(pubKeyBytes, Secp256k1)
+
+	assert.Equal(t, pubKey65, hex.EncodeToString(pubKeyBytes))
 }
 
 func TestSignatureDropRecoveryId(t *testing.T) {
