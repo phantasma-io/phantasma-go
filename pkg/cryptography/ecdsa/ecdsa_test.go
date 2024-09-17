@@ -63,6 +63,17 @@ func TestSignatureDropRecoveryId(t *testing.T) {
 	assert.Equal(t, result, result2)
 }
 
+func TestSignatureToRSConversions(t *testing.T) {
+	signatureBytes, err := hex.DecodeString(signatureRef)
+	if err != nil {
+		panic(err)
+	}
+
+	r, s := SignatureToRS(signatureBytes)
+	signatureBytesRecreated := RSToSignatureWithoutRecoveryId(r, s)
+	assert.Equal(t, signatureBytes, signatureBytesRecreated)
+}
+
 func TestEcdsaSecp256k1Signing(t *testing.T) {
 	privKeyBytes, err := hex.DecodeString(privKey)
 	if err != nil {

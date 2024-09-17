@@ -55,6 +55,10 @@ func SignatureDropRecoveryId(signature []byte) []byte {
 	return signature[:len(signature)-1]
 }
 
+func RSToSignatureWithoutRecoveryId(r, s *big.Int) []byte {
+	return append(r.Bytes(), s.Bytes()...)
+}
+
 // Returns R/S pair
 func SignatureToRS(signature []byte) (*big.Int, *big.Int) {
 	signature = SignatureDropRecoveryId(signature)
