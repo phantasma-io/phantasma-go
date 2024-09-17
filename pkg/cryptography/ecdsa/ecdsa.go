@@ -3,6 +3,7 @@ package ecdsa
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/rand"
 	"errors"
 	"math/big"
 
@@ -82,6 +83,19 @@ func Sign(message, prikey []byte, curve ECDsaCurve) ([]byte, error) {
 		}
 
 		return SignatureDropRecoveryId(signature), nil
+	} else if curve == Secp256r1 {
+		pk := new(ecdsa.PrivateKey)
+		pk.Curve = elliptic.P256()
+		pk.D = big.NewInt(0).SetBytes(prikey)
+
+		r, s, err := ecdsa.Sign(rand.Reader, pk, hash)
+		if err != nil {
+			return nil, err
+		}
+
+		signature := RSToSignatureWithoutRecoveryId(r, s)
+
+		return signature, nil
 	}
 
 	return nil, errors.New("unsupported curve")
