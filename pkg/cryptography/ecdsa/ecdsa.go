@@ -87,22 +87,39 @@ func Sign(message, prikey []byte, curve ECDsaCurve) ([]byte, error) {
 	return nil, errors.New("unsupported curve")
 }
 
-func Verify(message, signature, pubkey []byte, curve ECDsaCurve) bool {
+func Verify(message, signature, pubkey []byte, curve ECDsaCurve) (bool, error) {
 	hash := hash.Sha256(message)
 	if curve == Secp256k1 {
-		return secp256k1.VerifySignature(UncompressedPublicKeyTo65Bytes(pubkey),
+
+		var uncompressedPubkey []byte
+		if len(pubkey) > 33 {
+			uncompressedPubkey = UncompressedPublicKeyTo65Bytes(pubkey)
+		} else {
+			var err error
+			uncompressedPubkey, err = DecompressPublicKey(pubkey, Secp256k1)
+
+			if err != nil {
+				return false, err
+			}
+		}
+
+		return secp256k1.VerifySignature(uncompressedPubkey,
 			hash,
-			SignatureDropRecoveryId(signature))
+			SignatureDropRecoveryId(signature)), nil
 	}
 	if curve == Secp256r1 {
 
 		pub := new(ecdsa.PublicKey)
 		pub.Curve = elliptic.P256()
-		pub.X, pub.Y = elliptic.UnmarshalCompressed(elliptic.P256(), CompressPublicKey(pubkey))
+		if len(pubkey) > 33 {
+			pub.X, pub.Y = elliptic.UnmarshalCompressed(elliptic.P256(), CompressPublicKey(pubkey))
+		} else {
+			pub.X, pub.Y = elliptic.UnmarshalCompressed(elliptic.P256(), pubkey)
+		}
 
 		r, s := SignatureToRS(signature)
-		return ecdsa.Verify(pub, hash, r, s)
+		return ecdsa.Verify(pub, hash, r, s), nil
 	}
 
-	return false
+	return false, nil
 }

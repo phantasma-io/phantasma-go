@@ -105,13 +105,21 @@ func (v *ProofOfAddressesVerifier) VerifyMessage() (bool, string) {
 	}
 
 	fmt.Println(len(v.EthSignatureBytes))
-	if !ecdsa.Verify(v.SignedMessageBytes, v.EthSignatureBytes, v.EthPublicKeyBytes, ecdsa.Secp256k1) {
+	ethRes, err := ecdsa.Verify(v.SignedMessageBytes, v.EthSignatureBytes, v.EthPublicKeyBytes, ecdsa.Secp256k1)
+	if err != nil {
+		panic(err)
+	}
+	if !ethRes {
 		success = false
 		errorMessage += "Ethereum signature is incorrect!\n"
 	}
 
 	fmt.Println(len(v.Neo2SignatureBytes))
-	if !ecdsa.Verify(v.SignedMessageBytes, v.Neo2SignatureBytes, v.Neo2PublicKeyBytes, ecdsa.Secp256r1) {
+	neoRes, err := ecdsa.Verify(v.SignedMessageBytes, v.Neo2SignatureBytes, v.Neo2PublicKeyBytes, ecdsa.Secp256r1)
+	if err != nil {
+		panic(err)
+	}
+	if !neoRes {
 		success = false
 		errorMessage += "Neo Legacy signature is incorrect!\n"
 	}

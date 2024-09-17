@@ -94,13 +94,19 @@ func TestEcdsaSecp256k1Signing(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	verificationResult1 := Verify(m, signature, pubKeyBytes, Secp256k1)
+	verificationResult1, err := Verify(m, signature, pubKeyBytes, Secp256k1)
+	if err != nil {
+		panic(err)
+	}
 
 	signatureRefBytes, err := hex.DecodeString(signatureRef)
 	if err != nil {
 		panic(err)
 	}
-	verificationResult2 := Verify([]byte(testMessage), signatureRefBytes, pubKeyBytes, Secp256k1)
+	verificationResult2, err := Verify([]byte(testMessage), signatureRefBytes, pubKeyBytes, Secp256k1)
+	if err != nil {
+		panic(err)
+	}
 
 	assert.Equal(t, hex.EncodeToString(signature), signatureRef) // Signatures should be the same, deterministic version is used
 	assert.Equal(t, true, verificationResult1)
