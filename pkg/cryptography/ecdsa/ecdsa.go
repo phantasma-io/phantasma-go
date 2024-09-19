@@ -6,21 +6,24 @@ import (
 	"crypto/rand"
 	"errors"
 
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+	"github.com/dustinxie/ecc"
 	hash "github.com/phantasma-io/phantasma-go/pkg/util/hashing"
 )
 
 func Sign(message, prikey []byte, curve ECDsaCurve) ([]byte, error) {
-	// pk, err := crypto.HexToECDSA(privateKeyHex)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// pubKey := append(pk.PublicKey.X.Bytes(), pk.PublicKey.Y.Bytes()...)
+	if len(message) == 0 {
+		return nil, errors.New("message lenth is 0")
+	}
+	if len(prikey) == 0 {
+		return nil, errors.New("prikey lenth is 0")
+	}
 
 	hash := hash.Sha256(message)
 
 	if curve == Secp256k1 {
-		signature, err := secp256k1.Sign(hash, prikey)
+		pk := PrivateKeyUnmarshal(prikey, ecc.P256k1())
+
+		signature, err := ecc.SignBytes(pk, hash, ecc.LowerS)
 		if err != nil {
 			return nil, err
 		}
@@ -43,24 +46,21 @@ func Sign(message, prikey []byte, curve ECDsaCurve) ([]byte, error) {
 }
 
 func Verify(message, signature, pubkey []byte, curve ECDsaCurve) (bool, error) {
+	if len(message) == 0 {
+		return false, errors.New("message lenth is 0")
+	}
+	if len(signature) == 0 {
+		return false, errors.New("signature lenth is 0")
+	}
+	if len(pubkey) == 0 {
+		return false, errors.New("pubkey lenth is 0")
+	}
+
 	hash := hash.Sha256(message)
 	if curve == Secp256k1 {
+		pub := PublicKeyUnmarshal(pubkey, ecc.P256k1())
 
-		var uncompressedPubkey []byte
-		if len(pubkey) > 33 {
-			uncompressedPubkey = UncompressedPublicKeyTo65Bytes(pubkey)
-		} else {
-			var err error
-			uncompressedPubkey, err = DecompressPublicKey(pubkey, Secp256k1)
-
-			if err != nil {
-				return false, err
-			}
-		}
-
-		return secp256k1.VerifySignature(uncompressedPubkey,
-			hash,
-			SignatureDropRecoveryId(signature)), nil
+		return ecc.VerifyBytes(pub, hash, SignatureDropRecoveryId(signature), ecc.Normal), nil
 	}
 	if curve == Secp256r1 {
 		pub := PublicKeyUnmarshal(pubkey, elliptic.P256())

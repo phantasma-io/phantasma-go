@@ -3,10 +3,9 @@ package ecdsa
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"errors"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
+	"github.com/dustinxie/ecc"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
@@ -32,18 +31,6 @@ func CompressPublicKey(uncompressedPublicKey []byte) []byte {
 	return append([]byte{prefix}, x.Bytes()...)
 }
 
-func DecompressPublicKey(compressedPublicKey []byte, curve ECDsaCurve) ([]byte, error) {
-	if curve == Secp256k1 {
-		x, y := secp256k1.DecompressPubkey(compressedPublicKey)
-
-		uncompressedPubkey := append(x.Bytes(), y.Bytes()...)
-		uncompressedPubkey = UncompressedPublicKeyTo65Bytes(uncompressedPubkey)
-		return uncompressedPubkey, nil
-	} else {
-		return nil, errors.New("Not implemented")
-	}
-}
-
 func PrivateKeyUnmarshal(privKey []byte, curve elliptic.Curve) *ecdsa.PrivateKey {
 	pk := new(ecdsa.PrivateKey)
 	pk.Curve = curve
@@ -55,10 +42,20 @@ func PrivateKeyUnmarshal(privKey []byte, curve elliptic.Curve) *ecdsa.PrivateKey
 func PublicKeyUnmarshal(pubKey []byte, curve elliptic.Curve) *ecdsa.PublicKey {
 	pub := new(ecdsa.PublicKey)
 	pub.Curve = curve
+
 	if len(pubKey) > 33 {
-		pub.X, pub.Y = elliptic.UnmarshalCompressed(elliptic.P256(), CompressPublicKey(pubKey))
+		if curve == ecc.P256k1() {
+			pub.X, pub.Y = ecc.UnmarshalCompressed(ecc.P256k1(), CompressPublicKey(pubKey))
+		} else {
+			pub.X, pub.Y = elliptic.UnmarshalCompressed(elliptic.P256(), CompressPublicKey(pubKey))
+		}
+
 	} else {
-		pub.X, pub.Y = elliptic.UnmarshalCompressed(elliptic.P256(), pubKey)
+		if curve == ecc.P256k1() {
+			pub.X, pub.Y = ecc.UnmarshalCompressed(ecc.P256k1(), pubKey)
+		} else {
+			pub.X, pub.Y = elliptic.UnmarshalCompressed(elliptic.P256(), pubKey)
+		}
 	}
 
 	return pub

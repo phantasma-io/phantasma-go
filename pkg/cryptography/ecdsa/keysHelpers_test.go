@@ -23,13 +23,3 @@ func TestUncompressedPublicKeyTo65Bytes(t *testing.T) {
 	assert.Equal(t, k1PubKey65, hex.EncodeToString(result))
 	assert.Equal(t, result, result2)
 }
-
-func TestCompressedPublicKeyDecompression(t *testing.T) {
-	pubKeyBytes, err := hex.DecodeString(k1PubKeyCompressed)
-	if err != nil {
-		panic(err)
-	}
-	pubKeyBytes, err = DecompressPublicKey(pubKeyBytes, Secp256k1)
-
-	assert.Equal(t, k1PubKey65, hex.EncodeToString(pubKeyBytes))
-}
