@@ -1,8 +1,11 @@
 package proofOfAddress
 
 import (
+	"encoding/hex"
+	"fmt"
 	"testing"
 
+	hash "github.com/phantasma-io/phantasma-go/pkg/util/hashing"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,6 +44,10 @@ Neo Legacy signature: 8A961AB366DFD9A3EB1ED5FD496E1CE818A67873162A7A21F663BA3203
 
 func TestProofOfAddressesVerifier(t *testing.T) {
 	v := NewProofOfAddressesVerifier(testMessage)
+
+	hash := hash.Sha256([]byte(v.SignedMessage))
+	fmt.Printf("Hash: %s\n", hex.EncodeToString(hash))
+
 	success, errorMessage := v.VerifyMessage()
 	assert.Equal(t, true, success)
 	assert.Equal(t, "", errorMessage)
