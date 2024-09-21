@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dustinxie/ecc"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/cryptography/ecdsa"
 )
@@ -124,14 +126,15 @@ func (v *ProofOfAddressesVerifier) VerifyMessage() (bool, string) {
 		errorMessage += "Neo Legacy signature is incorrect!\n"
 	}
 
-	/*
-		var ethAddressFromPublicKey = new Poltergeist.PhantasmaLegacy.Ethereum.Util.AddressUtil().ConvertToChecksumAddress(EthereumKey.PublicKeyToAddress(EthPublicKeyBytes));
-		if (EthAddress != ethAddressFromPublicKey)
-		{
-		    success = false;
-		    errorMessage += "Ethereum address is incorrect: " + ethAddressFromPublicKey + "\n";
-		}
+	pubEth := ecdsa.PublicKeyUnmarshal(v.EthPublicKeyBytes, ecc.P256k1())
+	ethAddressFromPublicKey := crypto.PubkeyToAddress(*pubEth).Hex()
 
+	if v.EthAddress != ethAddressFromPublicKey {
+		success = false
+		errorMessage += "Ethereum address is incorrect: " + ethAddressFromPublicKey + "\n"
+	}
+
+	/*
 		var neo2AddressFromPublicKey = Poltergeist.Neo2.Core.NeoKeys.PublicKeyToN2Address(Neo2PublicKeyBytes);
 		if (Neo2Address != neo2AddressFromPublicKey)
 		{
