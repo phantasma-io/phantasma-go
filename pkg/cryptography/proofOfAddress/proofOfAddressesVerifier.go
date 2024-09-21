@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/cryptography/ecdsa"
+	"github.com/phantasma-io/phantasma-go/pkg/cryptography/neoLegacy"
 )
 
 type ProofOfAddressesVerifier struct {
@@ -134,13 +135,11 @@ func (v *ProofOfAddressesVerifier) VerifyMessage() (bool, string) {
 		errorMessage += "Ethereum address is incorrect: " + ethAddressFromPublicKey + "\n"
 	}
 
-	/*
-		var neo2AddressFromPublicKey = Poltergeist.Neo2.Core.NeoKeys.PublicKeyToN2Address(Neo2PublicKeyBytes);
-		if (Neo2Address != neo2AddressFromPublicKey)
-		{
-		    success = false;
-		    errorMessage += "Neo Legacy address is incorrect: " + neo2AddressFromPublicKey + "\n";
-						}*/
+	neo2AddressFromPublicKey := neoLegacy.Address([]byte(v.Neo2PublicKeyBytes))
+	if v.Neo2Address != neo2AddressFromPublicKey {
+		success = false
+		errorMessage += "Neo Legacy address is incorrect: " + neo2AddressFromPublicKey + "\n"
+	}
 
 	return success, errorMessage
 }
