@@ -69,6 +69,8 @@ func ConvertDecimalsEx(number string, decimals int, separator string) string {
 		return "0"
 	}
 
+	number = trimWholePrefix(number, "0")
+
 	if decimals == 0 {
 		return addSignPrefix(number, isPositive)
 	}
@@ -104,6 +106,8 @@ func ConvertDecimalsBackEx(number string, decimals int, separator string, panicI
 	if stringIsZeroOrEmptyBigint(number) {
 		return "0"
 	}
+
+	number = trimWholePrefix(number, "0")
 
 	if !strings.Contains(number, separator) {
 		// No fractional part found, we need to put zeroes instead
