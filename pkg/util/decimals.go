@@ -41,20 +41,40 @@ func stringIsZeroOrEmptyBigint(number string) bool {
 	return true
 }
 
+func cutOffSignPrefix(number string) (string, bool) {
+	isPositive := true
+	if number[:1] == "-" {
+		isPositive = false
+		number = number[1:]
+	}
+
+	return number, isPositive
+}
+
+func addSignPrefix(number string, isPositive bool) string {
+	if isPositive || number == "0" {
+		return number
+	}
+
+	return "-" + number
+}
+
 // Public utils
 // ConvertDecimalsEx converts big integer number to decimal number, both serialized as a string.
 // Example: ConvertDecimalsEx("90000", 10, ".") call returns "0.000009" string
 func ConvertDecimalsEx(number string, decimals int, separator string) string {
+	number, isPositive := cutOffSignPrefix(number)
+
 	if stringIsZeroOrEmptyBigint(number) {
 		return "0"
 	}
 
 	if decimals == 0 {
-		return number
+		return addSignPrefix(number, isPositive)
 	}
 
 	if len(number) <= decimals {
-		return "0" + separator + strings.Repeat("0", decimals-len(number)) + trimWholeSuffix(number, "0")
+		return addSignPrefix("0"+separator+strings.Repeat("0", decimals-len(number))+trimWholeSuffix(number, "0"), isPositive)
 	}
 
 	integerPart := number[:len(number)-decimals]
@@ -65,9 +85,9 @@ func ConvertDecimalsEx(number string, decimals int, separator string) string {
 	fractionalPart := number[len(number)-decimals:]
 
 	if stringIsZeroOrEmptyBigint(fractionalPart) {
-		return integerPart
+		return addSignPrefix(integerPart, isPositive)
 	}
-	return integerPart + separator + trimWholeSuffix(fractionalPart, "0")
+	return addSignPrefix(integerPart+separator+trimWholeSuffix(fractionalPart, "0"), isPositive)
 }
 
 // ConvertDecimals converts big integer number to decimal number, serialized as a string.
@@ -79,13 +99,15 @@ func ConvertDecimals(number *big.Int, decimals int) string {
 // ConvertDecimalsBackEx converts decimal number to big integer number, both serialized as a string.
 // Example: ConvertDecimalsBackEx("0.000009", 10, ".", true) call returns "90000" string
 func ConvertDecimalsBackEx(number string, decimals int, separator string, panicIfRoundingNeeded bool) string {
+	number, isPositive := cutOffSignPrefix(number)
+
 	if stringIsZeroOrEmptyBigint(number) {
 		return "0"
 	}
 
 	if !strings.Contains(number, separator) {
 		// No fractional part found, we need to put zeroes instead
-		return number + strings.Repeat("0", decimals)
+		return addSignPrefix(number+strings.Repeat("0", decimals), isPositive)
 	}
 
 	split := strings.SplitN(number, separator, 2)
@@ -98,7 +120,7 @@ func ConvertDecimalsBackEx(number string, decimals int, separator string, panicI
 		if !isInteger(number) && !stringIsZeroOrEmptyBigint(fractionalPart) {
 			panic("Non-integer number passed but decimals set to 0")
 		}
-		return number
+		return addSignPrefix(number, isPositive)
 	}
 
 	if len(fractionalPart) < decimals {
@@ -124,7 +146,7 @@ func ConvertDecimalsBackEx(number string, decimals int, separator string, panicI
 		result = "0"
 	}
 
-	return result
+	return addSignPrefix(result, isPositive)
 }
 
 // ConvertDecimalsBack converts decimal number, serialized as a string, to big integer number.
