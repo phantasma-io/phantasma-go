@@ -31,62 +31,64 @@ func TestStringIsZeroOrEmptyBigint(t *testing.T) {
 	assert.Equal(t, true, stringIsZeroOrEmptyBigint(""))
 }
 
+type DecimalsTestData struct {
+	stringWithDecimalsRef string
+	stringWithDecimals    string
+	stringNoDecimalsRef   string
+	stringNoDecimals      string
+	decimals              int
+	separator             string
+	panicIfRoundingNeeded bool
+}
+
+var decimalsTestData []DecimalsTestData = []DecimalsTestData{
+	{"0", "0", "0", "000000000", 10, ".", true},
+	{"0", "0.0000000000", "0", "0000000000", 10, ".", true},
+	{"0", "0", "0", "00000000000", 0, ".", true},
+	{"0", "0", "0", "00000000000", 10, ".", true},
+	{"0", "0.0", "0", "00000000000", 10, ".", true},
+	{"0", "0,0", "0", "00000000000", 10, ",", true},
+
+	{"0.0000000001", "0.00000000010", "1", "1", 10, ".", true},
+	{"0.0000000001", "0.00000000011", "1", "1", 10, ".", false},
+	{"0.000009", "0.000009", "90000", "90000", 10, ".", true},
+	{"0.01", "0.01", "100000000", "100000000", 10, ".", true},
+	{"0.1", "0.1", "1000000000", "1000000000", 10, ".", true},
+	{"0.1", "0.1", "10", "10", 2, ".", true},
+
+	{"1", "1", "10", "10", 1, ".", true},
+	{"1", "1", "1", "1", 0, ".", true},
+	{"1", "1", "10000000000", "10000000000", 10, ".", true},
+	{"1.1", "1.1", "11000000000", "11000000000", 10, ".", true},
+	{"1.19", "1.19", "11900000000", "11900000000", 10, ".", true},
+	{"1.019", "000000001.019", "10190000000", "10190000000", 10, ".", true},
+	{"1.019", "000000001.01900000000000000000", "10190000000", "10190000000", 10, ".", true},
+	{"1.019", "000000001.019000000000000000001", "10190000000", "10190000000", 10, ".", false},
+
+	{"10", "10", "100000000000", "100000000000", 10, ".", true},
+	{"11", "11", "110000000000", "110000000000", 10, ".", true},
+
+	{"9999", "9999", "9999", "9999", 0, ".", true},
+}
+
 func TestConvertDecimalsEx(t *testing.T) {
-	assert.Equal(t, "0.0000000001", ConvertDecimalsEx("1", 10, "."))
-	assert.Equal(t, "0.000009", ConvertDecimalsEx("90000", 10, "."))
-	assert.Equal(t, "0.01", ConvertDecimalsEx("100000000", 10, "."))
-	assert.Equal(t, "0.1", ConvertDecimalsEx("1000000000", 10, "."))
-	assert.Equal(t, "0", ConvertDecimalsEx("000000000", 10, "."))
-	assert.Equal(t, "0", ConvertDecimalsEx("0000000000", 10, "."))
-	assert.Equal(t, "0", ConvertDecimalsEx("00000000000", 10, "."))
-	assert.Equal(t, "1", ConvertDecimalsEx("10000000000", 10, "."))
-	assert.Equal(t, "1.1", ConvertDecimalsEx("11000000000", 10, "."))
-	assert.Equal(t, "10", ConvertDecimalsEx("100000000000", 10, "."))
-	assert.Equal(t, "11", ConvertDecimalsEx("110000000000", 10, "."))
-	assert.Equal(t, "1.19", ConvertDecimalsEx("11900000000", 10, "."))
-	assert.Equal(t, "1.019", ConvertDecimalsEx("10190000000", 10, "."))
+	for _, d := range decimalsTestData {
+		assert.Equal(t, d.stringWithDecimalsRef, ConvertDecimalsEx(d.stringNoDecimals, d.decimals, d.separator))
+	}
 }
 
 func TestConvertDecimalsBackEx(t *testing.T) {
 	assert.Panics(t, func() { ConvertDecimalsBackEx("0.0000000001", 0, ".", false) })
-	assert.Equal(t, "0", ConvertDecimalsBackEx("0.0000000000", 10, ".", true))
-	assert.Equal(t, "1", ConvertDecimalsBackEx("0.0000000001", 10, ".", true))
-	assert.Equal(t, "1", ConvertDecimalsBackEx("0.00000000010", 10, ".", true))
-	assert.Equal(t, "1", ConvertDecimalsBackEx("0.00000000011", 10, ".", false))
-	assert.Equal(t, "90000", ConvertDecimalsBackEx("0.000009", 10, ".", true))
-	assert.Equal(t, "100000000", ConvertDecimalsBackEx("0.01", 10, ".", true))
-	assert.Equal(t, "1000000000", ConvertDecimalsBackEx("0.1", 10, ".", true))
-	assert.Equal(t, "1", ConvertDecimalsBackEx("0.1", 1, ".", true))
-	assert.Equal(t, "10", ConvertDecimalsBackEx("0.1", 2, ".", true))
-	assert.Equal(t, "0", ConvertDecimalsBackEx("0", 0, ".", true))
-	assert.Equal(t, "0", ConvertDecimalsBackEx("0", 10, ".", true))
-	assert.Equal(t, "0", ConvertDecimalsBackEx("0.0", 10, ".", true))
-	assert.Equal(t, "0", ConvertDecimalsBackEx("0,0", 10, ",", true))
-	assert.Equal(t, "1", ConvertDecimalsBackEx("1", 0, ".", true))
-	assert.Equal(t, "9999", ConvertDecimalsBackEx("9999", 0, ".", true))
-	assert.Equal(t, "10000000000", ConvertDecimalsBackEx("1", 10, ".", true))
-	assert.Equal(t, "11000000000", ConvertDecimalsBackEx("1.1", 10, ".", true))
-	assert.Equal(t, "100000000000", ConvertDecimalsBackEx("10", 10, ".", true))
-	assert.Equal(t, "110000000000", ConvertDecimalsBackEx("11", 10, ".", true))
-	assert.Equal(t, "11900000000", ConvertDecimalsBackEx("1.19", 10, ".", true))
-	assert.Equal(t, "10190000000", ConvertDecimalsBackEx("1.019", 10, ".", true))
-	assert.Equal(t, "10190000000", ConvertDecimalsBackEx("000000001.019", 10, ".", true))
-	assert.Equal(t, "10190000000", ConvertDecimalsBackEx("000000001.01900000000000000000", 10, ".", true))
-	assert.Equal(t, "10190000000", ConvertDecimalsBackEx("000000001.019000000000000000001", 10, ".", false))
+
+	for _, d := range decimalsTestData {
+		assert.Equal(t, d.stringNoDecimalsRef, ConvertDecimalsBackEx(d.stringWithDecimals, d.decimals, d.separator, d.panicIfRoundingNeeded))
+	}
 }
 
 func TestConvertDecimalsBack(t *testing.T) {
-	assert.Equal(t, "1", ConvertDecimalsBack("0.0000000001", 10).String())
-	assert.Equal(t, "90000", ConvertDecimalsBack("0.000009", 10).String())
-	assert.Equal(t, "100000000", ConvertDecimalsBack("0.01", 10).String())
-	assert.Equal(t, "1000000000", ConvertDecimalsBack("0.1", 10).String())
-	assert.NotEqual(t, "1000000000", ConvertDecimalsBack("0,1", 10).String())
-	assert.Equal(t, "0", ConvertDecimalsBack("0", 10).String())
-	assert.Equal(t, "0", ConvertDecimalsBack("0.0", 10).String())
-	assert.Equal(t, "10000000000", ConvertDecimalsBack("1", 10).String())
-	assert.Equal(t, "11000000000", ConvertDecimalsBack("1.1", 10).String())
-	assert.Equal(t, "100000000000", ConvertDecimalsBack("10", 10).String())
-	assert.Equal(t, "110000000000", ConvertDecimalsBack("11", 10).String())
-	assert.Equal(t, "11900000000", ConvertDecimalsBack("1.19", 10).String())
-	assert.Equal(t, "10190000000", ConvertDecimalsBack("1.019", 10).String())
+	for _, d := range decimalsTestData {
+		if d.separator != "," && d.panicIfRoundingNeeded != false {
+			assert.Equal(t, d.stringNoDecimalsRef, ConvertDecimalsBack(d.stringWithDecimals, d.decimals).String())
+		}
+	}
 }
