@@ -124,6 +124,24 @@ func (rpc PhantasmaRPC) GetAccount(address string) (resp.AccountResult, error) {
 	return account, nil
 }
 
+// Deprecated: Long execution time and possibility of inconsistent result
+// GetAccountEx returns current account state and list of all txes, including latest tx for this account (last in tx list)
+func (rpc PhantasmaRPC) GetAccountEx(address string) (resp.AccountResult, error) {
+	var account resp.AccountResult
+	result, err := rpc.client.Call(context.Background(), "getAccount", address, true)
+
+	if err := checkError(err, result.Error); err != nil {
+		return resp.AccountResult{}, err
+	}
+
+	err = result.GetObject(&account)
+	if err != nil {
+		return resp.AccountResult{}, err
+	}
+
+	return account, nil
+}
+
 // GetAddressTransactions Returns list of transactions for given address
 func (rpc PhantasmaRPC) GetAddressTransactions(address string, page int, pageSize int) (resp.PaginatedResult[resp.AddressTransactionsResult], error) {
 	var addressTxs resp.PaginatedResult[resp.AddressTransactionsResult]
