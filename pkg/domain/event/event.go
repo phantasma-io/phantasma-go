@@ -181,7 +181,7 @@ type TokenEventData struct {
 // Serialize implements ther Serializable interface
 func (te *TokenEventData) Serialize(writer *io.BinWriter) {
 	writer.WriteString(te.Symbol)
-	writer.WriteVarBytes(te.Value.Bytes())
+	writer.WriteBigInteger(te.Value)
 	writer.WriteString(te.ChainName)
 }
 
