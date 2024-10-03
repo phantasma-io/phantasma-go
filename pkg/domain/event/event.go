@@ -156,6 +156,10 @@ func (k EventKind) IsTokenEvent() bool {
 	return k == TokenBurn || k == TokenClaim || k == TokenMint || k == TokenReceive || k == TokenSend || k == TokenStake
 }
 
+func (k EventKind) IsMarketEvent() bool {
+	return k == OrderCreated || k == OrderCancelled || k == OrderFilled || k == OrderClosed || k == OrderBid
+}
+
 const (
 	Fixed   TypeAuction = 0
 	Classic TypeAuction = 1
