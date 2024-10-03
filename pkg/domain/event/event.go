@@ -208,6 +208,26 @@ type MarketEventData struct {
 	Type        TypeAuction
 }
 
+// Serialize implements ther Serializable interface
+func (d *MarketEventData) Serialize(writer *io.BinWriter) {
+	writer.WriteString(d.BaseSymbol)
+	writer.WriteString(d.QuoteSymbol)
+	writer.WriteBigInteger(&d.ID)
+	writer.WriteBigInteger(&d.Price)
+	writer.WriteBigInteger(&d.EndPrice)
+	writer.WriteB(byte(d.Type))
+}
+
+// Deserialize implements ther Serializable interface
+func (d *MarketEventData) Deserialize(reader *io.BinReader) {
+	d.BaseSymbol = reader.ReadString()
+	d.QuoteSymbol = reader.ReadString()
+	d.ID = *reader.ReadBigInteger()
+	d.Price = *reader.ReadBigInteger()
+	d.EndPrice = *reader.ReadBigInteger()
+	d.Type = TypeAuction(reader.ReadU32LE())
+}
+
 type ChainValueEventData struct {
 	Name  string
 	Value big.Int
