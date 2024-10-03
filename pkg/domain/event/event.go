@@ -202,9 +202,9 @@ type InfusionEventData struct {
 type MarketEventData struct {
 	BaseSymbol  string
 	QuoteSymbol string
-	ID          big.Int
-	Price       big.Int
-	EndPrice    big.Int
+	ID          *big.Int
+	Price       *big.Int
+	EndPrice    *big.Int
 	Type        TypeAuction
 }
 
@@ -212,9 +212,9 @@ type MarketEventData struct {
 func (d *MarketEventData) Serialize(writer *io.BinWriter) {
 	writer.WriteString(d.BaseSymbol)
 	writer.WriteString(d.QuoteSymbol)
-	writer.WriteBigInteger(&d.ID)
-	writer.WriteBigInteger(&d.Price)
-	writer.WriteBigInteger(&d.EndPrice)
+	writer.WriteBigInteger(d.ID)
+	writer.WriteBigInteger(d.Price)
+	writer.WriteBigInteger(d.EndPrice)
 	writer.WriteB(byte(d.Type))
 }
 
@@ -222,9 +222,9 @@ func (d *MarketEventData) Serialize(writer *io.BinWriter) {
 func (d *MarketEventData) Deserialize(reader *io.BinReader) {
 	d.BaseSymbol = reader.ReadString()
 	d.QuoteSymbol = reader.ReadString()
-	d.ID = *reader.ReadBigInteger()
-	d.Price = *reader.ReadBigInteger()
-	d.EndPrice = *reader.ReadBigInteger()
+	d.ID = reader.ReadBigInteger()
+	d.Price = reader.ReadBigInteger()
+	d.EndPrice = reader.ReadBigInteger()
 	d.Type = TypeAuction(reader.ReadU32LE())
 }
 
