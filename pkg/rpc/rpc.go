@@ -143,6 +143,7 @@ func (rpc PhantasmaRPC) GetAccountEx(address string) (resp.AccountResult, error)
 }
 
 // GetAddressTransactions Returns list of transactions for given address
+// Transactions are ordered from newer to older
 func (rpc PhantasmaRPC) GetAddressTransactions(address string, page int, pageSize int) (resp.PaginatedResult[resp.AddressTransactionsResult], error) {
 	var addressTxs resp.PaginatedResult[resp.AddressTransactionsResult]
 	result, err := rpc.client.Call(context.Background(), "getAddressTransactions", address, page, pageSize)
