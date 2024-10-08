@@ -42,6 +42,7 @@ type DecimalsTestData struct {
 }
 
 var decimalsTestData []DecimalsTestData = []DecimalsTestData{
+	{"0", "", "0", "", 10, ".", true},
 	{"0", "0", "0", "000000000", 10, ".", true},
 	{"0", "-0", "0", "-000000000", 10, ".", true},
 	{"0", "0.0000000000", "0", "0000000000", 10, ".", true},

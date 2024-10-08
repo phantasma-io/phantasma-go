@@ -63,6 +63,10 @@ func addSignPrefix(number string, isPositive bool) string {
 // ConvertDecimalsEx converts big integer number to decimal number, both serialized as a string.
 // Example: ConvertDecimalsEx("90000", 10, ".") call returns "0.000009" string
 func ConvertDecimalsEx(number string, decimals int, separator string) string {
+	if len(number) == 0 {
+		return "0"
+	}
+
 	number, isPositive := cutOffSignPrefix(number)
 
 	if stringIsZeroOrEmptyBigint(number) {
@@ -101,6 +105,10 @@ func ConvertDecimals(number *big.Int, decimals int) string {
 // ConvertDecimalsBackEx converts decimal number to big integer number, both serialized as a string.
 // Example: ConvertDecimalsBackEx("0.000009", 10, ".", true) call returns "90000" string
 func ConvertDecimalsBackEx(number string, decimals int, separator string, panicIfRoundingNeeded bool) string {
+	if len(number) == 0 {
+		return "0"
+	}
+
 	number, isPositive := cutOffSignPrefix(number)
 
 	if stringIsZeroOrEmptyBigint(number) {
