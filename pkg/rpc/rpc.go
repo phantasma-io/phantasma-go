@@ -31,6 +31,14 @@ func NewRPCMainnet() PhantasmaRPC {
 	return NewRPC("https://pharpc1.phantasma.info/rpc")
 }
 
+// NewRPCSetMainnet returns a new set of RPC clients
+func NewRPCSetMainnet() []PhantasmaRPC {
+	return []PhantasmaRPC{NewRPC("https://pharpc1.phantasma.info/rpc"),
+		NewRPC("https://pharpc2.phantasma.info/rpc"),
+		NewRPC("https://pharpc3.phantasma.info/rpc"),
+		NewRPC("https://pharpc4.phantasma.info/rpc")}
+}
+
 // NewRPCTestnet returns a new testnet RPC client
 func NewRPCTestnet() PhantasmaRPC {
 	return NewRPC("https://testnet.phantasma.info/rpc")
