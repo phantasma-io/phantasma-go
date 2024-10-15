@@ -1,12 +1,35 @@
 package scriptbuilder_test
 
 import (
+	"math/big"
 	"testing"
-	//scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
+
+	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
+	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewScript(t *testing.T) {
-	//sb := scriptbuilder.BeginScript()
+	fromAddress := "P2KM9FjYrDXnPPAynLXAHdQ8wYz8de9VbDeybrLepnw6C5x"
+	toAddress := "P2KM9FjYrDXnPPAynLXAHdQ8wYz8de9VbDeybrLepnw6C5x"
+	symbols := []string{"SOUL", "KCAL"}
 
-	//script := sb.AllowGas("", "", 100000, 800).TransferTokens("SOUL", "SENDER_ADDRESS", "RECEIVER_ADDRESS", 100000).SpendGas().EndScript()
+	assert.NotPanics(t, func() {
+		sb := scriptbuilder.BeginScript()
+		sb.AllowGas(fromAddress, cryptography.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
+			TransferTokens(symbols[0], fromAddress, toAddress, big.NewInt(100000000)).
+			SpendGas(fromAddress).
+			EndScript()
+	})
+
+	assert.NotPanics(t, func() {
+		sb := scriptbuilder.BeginScript()
+		sb.CallInterop("Runtime.TransferToken", fromAddress, toAddress, symbols[0], "TOKEN_ID")
+	})
+
+	assert.Panics(t, func() {
+		sb := scriptbuilder.BeginScript()
+		// Arrays are not supported by script builder
+		sb.CallInterop("Runtime.TransferToken", fromAddress, toAddress, symbols, "TOKEN_ID")
+	})
 }

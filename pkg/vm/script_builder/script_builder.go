@@ -219,7 +219,7 @@ func (s ScriptBuilder) loadIntoReg(dstReg byte, arg interface{}) {
 	default:
 		if arg != nil {
 			s.writer.Err = errors.New(fmt.Sprintf("unsupported type %s", e))
-			return
+			panic(s.writer.Err)
 		}
 	}
 }
