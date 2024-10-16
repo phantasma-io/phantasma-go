@@ -3,6 +3,7 @@ package vm
 import (
 	"math/big"
 
+	"github.com/phantasma-io/phantasma-go/pkg/domain/types"
 	"github.com/phantasma-io/phantasma-go/pkg/io"
 )
 
@@ -13,12 +14,6 @@ type VMObject struct {
 
 // AsNumber() returns value stored in vm.VMObject structure, in .Data field, as a *big.Int number
 func (v *VMObject) AsNumber() *big.Int {
-	// TODO timestamp is not yet supported here
-	//if ((this.Type == VMType.Object || this.Type == VMType.Timestamp) && (Data is Timestamp))
-	//        {
-	//            return ((Timestamp)Data).Value;
-	//        }
-
 	switch v.Type {
 	case None:
 		return big.NewInt(0)
@@ -48,6 +43,9 @@ func (v *VMObject) AsNumber() *big.Int {
 
 	case Number:
 		return v.Data.(*big.Int)
+
+	case Timestamp:
+		return big.NewInt(int64(v.Data.(types.Timestamp).Value))
 
 	default:
 		panic("Unsupported type")
@@ -89,6 +87,6 @@ func (v *VMObject) Deserialize(reader *io.BinReader) {
 	case Struct:
 		panic("Not implemented")
 	case Timestamp:
-		panic("Not implemented")
+		v.Data = *reader.ReadTimestamp()
 	}
 }
