@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"reflect"
 
+	"github.com/phantasma-io/phantasma-go/pkg/domain/types"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
@@ -152,6 +153,15 @@ func (w *BinWriter) WriteBigInteger(n *big.Int) {
 	b := util.BigIntToPhantasmaByteArray(n)
 
 	w.WriteVarBytes(b)
+}
+
+// WriteTimestamp writes a timestamp in binary form into the underlying io.Writer.
+func (w *BinWriter) WriteTimestamp(t *types.Timestamp) {
+	if w.Err != nil {
+		return
+	}
+
+	w.WriteU32LE(t.Value)
 }
 
 // WriteVarBytes writes a variable length byte array into the underlying io.Writer.

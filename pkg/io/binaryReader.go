@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"reflect"
 
+	"github.com/phantasma-io/phantasma-go/pkg/domain/types"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
@@ -178,6 +179,17 @@ func (r *BinReader) ReadBigInteger() *big.Int {
 	b := r.ReadVarBytes()
 
 	return util.BigIntFromCsharpOrPhantasmaByteArray(b)
+}
+
+// ReadTimestamp reads a timestamp value from the underlying
+// io.Reader. On read failures it returns zero.
+func (r *BinReader) ReadTimestamp() *types.Timestamp {
+	i := r.ReadU32LE()
+	t := types.NewTimestamp(i)
+	if r.Err != nil {
+		return types.NewTimestamp(0)
+	}
+	return t
 }
 
 // ReadVarBytes reads the next set of bytes from the underlying reader.
