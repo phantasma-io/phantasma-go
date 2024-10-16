@@ -50,7 +50,7 @@ func menu() {
 }
 
 func chainStats() {
-	menuIndex, _ := PromptIndexedMenu("CHAIN STATS MENU:", []string{"latest block height", "soulmasters count", "go back"})
+	menuIndex, _ := PromptIndexedMenu("CHAIN STATS MENU:", []string{"latest block height", "soulmasters count", "soulmasters count and last inflation date", "go back"})
 
 	switch menuIndex {
 	case 1:
@@ -59,6 +59,8 @@ func chainStats() {
 	case 2:
 		printSoulmastersCount()
 	case 3:
+		printSoulmastersCountAndLastInflationDate()
+	case 4:
 		return
 	}
 }
