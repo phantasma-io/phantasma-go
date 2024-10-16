@@ -418,6 +418,12 @@ func (s ScriptResult) DecodeResult() *vm.VMObject {
 	return io.Deserialize[*vm.VMObject](decoded, &vm.VMObject{})
 }
 
+// DecodeResults() decodes HEX-encoded byte array result, stored in .Results array at given index, into vm.VMObject structure
+func (s ScriptResult) DecodeResults(index int) *vm.VMObject {
+	decoded, _ := hex.DecodeString(s.Results[index])
+	return io.Deserialize[*vm.VMObject](decoded, &vm.VMObject{})
+}
+
 // ArchiveResult comment
 type ArchiveResult struct {
 	Name          string   `json:"name"`
