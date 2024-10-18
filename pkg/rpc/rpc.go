@@ -314,6 +314,22 @@ func (rpc PhantasmaRPC) GetTokens(extended bool) ([]resp.TokenResult, error) {
 	return txResult, nil
 }
 
+// GetTokensAsMap returns chain tokens map where token symbol is used as a key
+func (rpc PhantasmaRPC) GetTokensAsMap(extended bool) (map[string]resp.TokenResult, error) {
+	result, err := rpc.GetTokens(extended)
+	if err != nil {
+		return nil, err
+	}
+
+	tokensMap := map[string]resp.TokenResult{}
+
+	for _, t := range result {
+		tokensMap[t.Symbol] = t
+	}
+
+	return tokensMap, nil
+}
+
 // GetToken comment
 func (rpc PhantasmaRPC) GetToken(symbol string, extended bool) (resp.TokenResult, error) {
 	var txResult resp.TokenResult
