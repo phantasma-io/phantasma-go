@@ -162,7 +162,11 @@ func (a *AccountResult) GetTokenBalance(t TokenResult) *BalanceResult {
 		}
 	}
 
-	b := BalanceResult{"main", "0", t.Symbol, uint(t.Decimals), []string{}}
+	b := BalanceResult{Chain: "main", Amount: "0", Symbol: t.Symbol, Decimals: uint(t.Decimals), Ids: []string{}}
+
+	if a.Balances == nil {
+		a.Balances = []BalanceResult{}
+	}
 	a.Balances = append(a.Balances, b)
 
 	return &a.Balances[len(a.Balances)-1]
