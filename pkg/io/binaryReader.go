@@ -17,13 +17,15 @@ const MaxArraySize = 0x1000000
 
 // BinReader is a convenient wrapper around a io.Reader and err object.
 // Used to simplify error handling when reading into a struct with many fields.
+// 'Count' field tracks amount of bytes read since structure initialization or since last time when counter was set to 0.
 type BinReader struct {
-	r   io.Reader
-	u64 []byte
-	u32 []byte
-	u16 []byte
-	u8  []byte
-	Err error
+	r     io.Reader
+	u64   []byte
+	u32   []byte
+	u16   []byte
+	u8    []byte
+	Err   error
+	Count int
 }
 
 // NewBinReaderFromIO makes a BinReader from io.Reader.
@@ -32,7 +34,7 @@ func NewBinReaderFromIO(ior io.Reader) *BinReader {
 	u32 := u64[:4]
 	u16 := u64[:2]
 	u8 := u64[:1]
-	return &BinReader{r: ior, u64: u64, u32: u32, u16: u16, u8: u8}
+	return &BinReader{r: ior, u64: u64, u32: u32, u16: u16, u8: u8, Count: 0}
 }
 
 // NewBinReaderFromBuf makes a BinReader from byte buffer.
@@ -218,7 +220,9 @@ func (r *BinReader) ReadBytes(buf []byte) {
 		return
 	}
 
-	_, r.Err = io.ReadFull(r.r, buf)
+	var n int
+	n, r.Err = io.ReadFull(r.r, buf)
+	r.Count += n
 }
 
 // ReadString calls ReadVarBytes and casts the results as a string.
