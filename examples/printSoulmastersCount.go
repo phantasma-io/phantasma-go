@@ -55,5 +55,5 @@ func printSoulmastersCountAndLastInflationDate() {
 		panic("Script invocation failed! Error: " + err.Error())
 	}
 
-	fmt.Printf("Current SoulMasters count: %s, last inflation date: %s \n", result.DecodeResults(0).AsNumber().String(), result.DecodeResults(1).AsNumber().String())
+	fmt.Printf("Current SoulMasters count: %s, last inflation date: %s \n", result.DecodeResults(0).AsString(), result.DecodeResults(1).AsString())
 }

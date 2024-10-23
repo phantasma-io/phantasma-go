@@ -2,6 +2,7 @@ package vm
 
 import (
 	"math/big"
+	"strconv"
 
 	"github.com/phantasma-io/phantasma-go/pkg/domain/types"
 	"github.com/phantasma-io/phantasma-go/pkg/io"
@@ -47,6 +48,39 @@ func (v *VMObject) AsNumber() *big.Int {
 
 	case Timestamp:
 		return big.NewInt(int64(v.Data.(types.Timestamp).Value))
+
+	default:
+		panic("Unsupported type")
+	}
+}
+
+// AsString() returns value stored in vm.VMObject structure, in .Data field, as a string
+func (v *VMObject) AsString() string {
+	switch v.Type {
+
+	case String:
+		return v.Data.(string)
+
+	case Bytes:
+		return string(v.Data.([]byte))
+
+	case Enum:
+		return strconv.FormatInt(int64(v.Data.(uint32)), 10)
+
+	case Bool:
+		var val = v.Data.(bool)
+		if val {
+			return "true"
+		} else {
+			return "false"
+		}
+
+	case Number:
+		n := v.Data.(big.Int)
+		return n.String()
+
+	case Timestamp:
+		return strconv.FormatInt(int64(v.Data.(types.Timestamp).Value), 10)
 
 	default:
 		panic("Unsupported type")
