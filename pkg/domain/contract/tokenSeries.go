@@ -51,8 +51,7 @@ func (s *TokenSeries) Deserialize(reader *io.BinReader) {
 	// s.ABI.Deserialize(reader)
 
 	bytes := reader.ReadVarBytes()
-	s.ABI = ContractInterface{}
-	_ = io.Deserialize[*ContractInterface](bytes, &s.ABI)
+	s.ABI = *io.Deserialize[*ContractInterface](bytes)
 
 	s.ROM = reader.ReadVarBytes()
 }

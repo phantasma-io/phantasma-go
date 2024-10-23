@@ -2,6 +2,7 @@ package io
 
 import (
 	"bytes"
+	"reflect"
 )
 
 // Serializer defines the binary encoding/decoding interface. Errors are
@@ -23,8 +24,13 @@ type serializable interface {
 	Serialize(*BinWriter)
 }
 
-func Deserialize[T deserializable](data []byte, object T) T {
+func Deserialize[T deserializable](data []byte) T {
 	br := NewBinReaderFromBuf(data)
+
+	// Here we get type of generic T and create a new object of this type which
+	// we will deserialize our data into.
+	// We need to .Elem() calls because we use poiner recievers for deserializable.
+	object := reflect.New(reflect.TypeOf((*T)(nil)).Elem().Elem()).Interface().(T)
 
 	object.Deserialize(br)
 	return object
