@@ -226,7 +226,7 @@ func (rpc PhantasmaRPC) GetBlockHeight(chainName string) (*big.Int, error) {
 
 func (rpc PhantasmaRPC) GetContract(name, chainName string) (resp.ContractResult, error) {
 	var contract resp.ContractResult
-	result, err := rpc.client.Call(context.Background(), "getContract", chainName, name, false)
+	result, err := rpc.client.Call(context.Background(), "getContract", chainName, name)
 
 	if err := checkError(err, result.Error); err != nil {
 		return resp.ContractResult{}, err
