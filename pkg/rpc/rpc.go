@@ -224,6 +224,22 @@ func (rpc PhantasmaRPC) GetBlockHeight(chainName string) (*big.Int, error) {
 	return height, nil
 }
 
+func (rpc PhantasmaRPC) GetContract(name, chainName string) (resp.ContractResult, error) {
+	var contract resp.ContractResult
+	result, err := rpc.client.Call(context.Background(), "getContract", chainName, name, false)
+
+	if err := checkError(err, result.Error); err != nil {
+		return resp.ContractResult{}, err
+	}
+
+	err = result.GetObject(&contract)
+	if err != nil {
+		return resp.ContractResult{}, err
+	}
+
+	return contract, nil
+}
+
 // InvokeRawScript comment
 func (rpc PhantasmaRPC) InvokeRawScript(chain, script string) (resp.ScriptResult, error) {
 	scriptResult := resp.ScriptResult{}
