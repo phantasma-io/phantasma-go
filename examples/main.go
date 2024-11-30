@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 
+	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/rpc"
 	"github.com/phantasma-io/phantasma-go/pkg/rpc/response"
 )
@@ -34,6 +36,7 @@ func menu() {
 			[]string{"wallet",
 				"show balance of address",
 				"chain stats",
+				"misc",
 				"logout"})
 
 		switch menuIndex {
@@ -44,6 +47,8 @@ func menu() {
 		case 3:
 			chainStats()
 		case 4:
+			misc()
+		case 5:
 			logout = true
 		}
 	}
@@ -61,6 +66,40 @@ func chainStats() {
 	case 3:
 		printSoulmastersCountAndLastInflationDate()
 	case 4:
+		return
+	}
+}
+
+func misc() {
+	menuIndex, _ := PromptIndexedMenu("MISC MENU:", []string{"address from public key", "go back"})
+
+	switch menuIndex {
+	case 1:
+		publicKeyHex := PromptStringInput("Enter public key in hex: ")
+		publicKey, err := hex.DecodeString(publicKeyHex)
+		if err != nil {
+			panic(err)
+		}
+
+		if len(publicKey) == cryptography.Length {
+			// This is the only correct way, address should have 34 bytes.
+			// 1 byte for type and then 33 bytes of compressed public key.
+			fmt.Println("Address: ", cryptography.NewAddress(publicKey).String())
+		} else if len(publicKey) == 33 {
+			publicKey = append([]byte{byte(cryptography.User)}, publicKey...)
+			fmt.Println("[33 bytes] * DON'T USE THIS ADDRESS * Address type is missing, using User by default: ")
+			fmt.Println(cryptography.NewAddress(publicKey).String())
+		} else if len(publicKey) == 32 {
+			// We cannot determenistically recover from 32 bytes because we need 33rd compression byte.
+			publicKey1 := append([]byte{byte(cryptography.User), 0x02}, publicKey...)
+			publicKey2 := append([]byte{byte(cryptography.User), 0x03}, publicKey...)
+
+			fmt.Println("[32 bytes] * DON'T USE THESE ADDRESSES * Address is 1st or 2nd, impossible to tell: ")
+			fmt.Println(cryptography.NewAddress(publicKey1).String())
+			fmt.Println(cryptography.NewAddress(publicKey2).String())
+		}
+
+	case 2:
 		return
 	}
 }
