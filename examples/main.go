@@ -90,13 +90,11 @@ func misc() {
 			fmt.Println("[33 bytes] * DON'T USE THIS ADDRESS * Address type is missing, using User by default: ")
 			fmt.Println(cryptography.NewAddress(publicKey).String())
 		} else if len(publicKey) == 32 {
-			// We cannot determenistically recover from 32 bytes because we need 33rd compression byte.
-			publicKey1 := append([]byte{byte(cryptography.User), 0x02}, publicKey...)
-			publicKey2 := append([]byte{byte(cryptography.User), 0x03}, publicKey...)
+			// We use only '0x02' prefix.
+			publicKey = append([]byte{byte(cryptography.User), 0x02}, publicKey...)
 
-			fmt.Println("[32 bytes] * DON'T USE THESE ADDRESSES * Address is 1st or 2nd, impossible to tell: ")
-			fmt.Println(cryptography.NewAddress(publicKey1).String())
-			fmt.Println(cryptography.NewAddress(publicKey2).String())
+			fmt.Println("[32 bytes] * DON'T USE THESE ADDRESSES * Address type is missing, using User by default: ")
+			fmt.Println(cryptography.NewAddress(publicKey).String())
 		}
 
 	case 2:
