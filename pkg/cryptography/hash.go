@@ -126,10 +126,6 @@ func (h Hash) GetDifficulty() int {
 	return 256 - result
 }
 
-func (a Hash) Compare(b Hash) int {
-	return slices.Compare(a._data, b._data)
-}
-
 // Serialize implements ther Serializable interface
 func (h *Hash) Serialize(writer *io.BinWriter) {
 	writer.WriteVarBytes(h._data)
