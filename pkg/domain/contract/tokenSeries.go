@@ -20,6 +20,10 @@ type TokenSeries struct {
 	Script    []byte
 	ABI       ContractInterface
 	ROM       []byte
+
+	// Extra fields, not serializable
+	SeriesID *big.Int
+	Symbol   string
 }
 
 func (s *TokenSeries) Serialize(writer *io.BinWriter) {
