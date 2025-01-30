@@ -26,3 +26,23 @@ func (ec *EnergyClaim) Deserialize(reader *io.BinReader) {
 	ec.ClaimDate = reader.ReadTimestamp()
 	ec.IsNew = reader.ReadBool()
 }
+
+type EnergyClaim_S struct {
+	StakeAmount string
+	ClaimDate   *types.Timestamp
+	IsNew       bool
+}
+
+// Serialize implements ther Serializable interface
+func (ec *EnergyClaim_S) Serialize(writer *io.BinWriter) {
+	writer.WriteBigIntegerFromString(ec.StakeAmount)
+	writer.WriteTimestamp(ec.ClaimDate)
+	writer.WriteBool(ec.IsNew)
+}
+
+// Deserialize implements ther Serializable interface
+func (ec *EnergyClaim_S) Deserialize(reader *io.BinReader) {
+	ec.StakeAmount = reader.ReadBigIntegerToString()
+	ec.ClaimDate = reader.ReadTimestamp()
+	ec.IsNew = reader.ReadBool()
+}

@@ -155,6 +155,17 @@ func (w *BinWriter) WriteBigInteger(n *big.Int) {
 	w.WriteVarBytes(b)
 }
 
+func (w *BinWriter) WriteBigIntegerFromString(n string) {
+	if w.Err != nil {
+		return
+	}
+
+	bi := big.NewInt(0)
+	bi.SetString(n, 10)
+
+	w.WriteBigInteger(bi)
+}
+
 // WriteTimestamp writes a timestamp in binary form into the underlying io.Writer.
 func (w *BinWriter) WriteTimestamp(t *types.Timestamp) {
 	if w.Err != nil {

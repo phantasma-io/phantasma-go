@@ -183,6 +183,14 @@ func (r *BinReader) ReadBigInteger() *big.Int {
 	return util.BigIntFromCsharpOrPhantasmaByteArray(b)
 }
 
+func (r *BinReader) ReadBigIntegerToString() string {
+	if r.Err != nil {
+		return big.NewInt(0).String()
+	}
+
+	return r.ReadBigInteger().String()
+}
+
 // ReadTimestamp reads a timestamp value from the underlying
 // io.Reader. On read failures it returns zero.
 func (r *BinReader) ReadTimestamp() *types.Timestamp {
