@@ -146,7 +146,7 @@ type TokenInfo_S struct {
 	MaxSupply string
 	Decimals  int32
 	Script    []byte
-	ABI       contract.ContractInterface
+	ABI       contract.ContractInterface_S
 }
 
 func (ti *TokenInfo_S) Serialize(writer *io.BinWriter) {
@@ -161,7 +161,7 @@ func (ti *TokenInfo_S) Serialize(writer *io.BinWriter) {
 	writer.WriteBigIntegerFromString(ti.MaxSupply)
 	writer.WriteVarBytes(ti.Script)
 
-	bytes := io.Serialize[*contract.ContractInterface](&ti.ABI)
+	bytes := io.Serialize[*contract.ContractInterface_S](&ti.ABI)
 	writer.WriteVarBytes(bytes)
 }
 
@@ -177,5 +177,5 @@ func (ti *TokenInfo_S) Deserialize(reader *io.BinReader) {
 	ti.Script = reader.ReadVarBytes()
 
 	bytes := reader.ReadVarBytes()
-	ti.ABI = *io.Deserialize[*contract.ContractInterface](bytes)
+	ti.ABI = *io.Deserialize[*contract.ContractInterface_S](bytes)
 }
