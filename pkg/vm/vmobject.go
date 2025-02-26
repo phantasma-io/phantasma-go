@@ -245,7 +245,7 @@ func (v *VMObject) Deserialize(reader *io.BinReader) {
 	case String:
 		v.Data = reader.ReadString()
 	case Struct:
-		childCount := reader.ReadU32LE()
+		childCount := reader.ReadVarUint()
 		children := make(map[VMObject]VMObject)
 		for {
 			if childCount == 0 {
