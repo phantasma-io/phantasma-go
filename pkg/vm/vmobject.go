@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"strconv"
 
+	"github.com/phantasma-io/phantasma-go/pkg/cryptography"
 	"github.com/phantasma-io/phantasma-go/pkg/domain/types"
 	"github.com/phantasma-io/phantasma-go/pkg/io"
 	"github.com/phantasma-io/phantasma-go/pkg/util"
@@ -241,7 +242,15 @@ func (v *VMObject) Deserialize(reader *io.BinReader) {
 	case Number:
 		v.Data = *reader.ReadBigInteger()
 	case Object:
-		panic("Not implemented")
+		bytes := reader.ReadVarBytes()
+		if len(bytes) == 35 {
+			v.Data = io.Deserialize[*cryptography.Address](bytes)
+			v.Type = Object
+		} else {
+			// NOTE object type information is lost during serialization, so we reconstruct it as byte array
+			v.Type = Bytes
+			v.Data = bytes
+		}
 	case String:
 		v.Data = reader.ReadString()
 	case Struct:
