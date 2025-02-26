@@ -215,6 +215,18 @@ func (v *VMObject) Serialize(writer *io.BinWriter) {
 	}
 }
 
+func ValidateStructKey(key *VMObject) {
+	if key.Type == None {
+		panic("Cannot use value of type None as key for struct field")
+	}
+	if key.Type == Struct {
+		panic("Cannot use value of type Struct as key for struct field")
+	}
+	if key.Type == Object {
+		panic("Cannot use value of type Object as key for struct field")
+	}
+}
+
 // Deserialize implements ther Serializable interface
 func (v *VMObject) Deserialize(reader *io.BinReader) {
 	v.Type = VMType(reader.ReadB())
@@ -233,7 +245,26 @@ func (v *VMObject) Deserialize(reader *io.BinReader) {
 	case String:
 		v.Data = reader.ReadString()
 	case Struct:
-		panic("Not implemented")
+		childCount := reader.ReadU32LE()
+		children := make(map[VMObject]VMObject)
+		for {
+			if childCount == 0 {
+				break
+			}
+
+			key := &VMObject{}
+			key.Deserialize(reader)
+
+			ValidateStructKey(key)
+
+			val := &VMObject{}
+			val.Deserialize(reader)
+
+			children[*key] = *val
+			childCount--
+		}
+
+		v.Data = children
 	case Timestamp:
 		v.Data = *reader.ReadTimestamp()
 	}
