@@ -1,3 +1,7 @@
+[private]
+just:
+    just -l
+
 [group('doc')]
 guide:
     cat README.md | less
