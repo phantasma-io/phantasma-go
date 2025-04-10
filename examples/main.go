@@ -83,15 +83,15 @@ func misc() {
 
 		if len(publicKey) == cryptography.Length {
 			// This is the only correct way, address should have 34 bytes.
-			// 1 byte for type and then 33 bytes of compressed public key.
+			// 1 byte for type, 1 byte is reserved (must be 0) and then 32 bytes of public key.
 			fmt.Println("Address: ", cryptography.NewAddress(publicKey).String())
 		} else if len(publicKey) == 33 {
 			publicKey = append([]byte{byte(cryptography.User)}, publicKey...)
 			fmt.Println("[33 bytes] * DON'T USE THIS ADDRESS * Address type is missing, using User by default: ")
 			fmt.Println(cryptography.NewAddress(publicKey).String())
 		} else if len(publicKey) == 32 {
-			// We use only '0x02' prefix.
-			publicKey = append([]byte{byte(cryptography.User), 0x02}, publicKey...)
+			// We use only '0x00' reserved byte for 2nd byte.
+			publicKey = append([]byte{byte(cryptography.User), 0x00}, publicKey...)
 
 			fmt.Println("[32 bytes] * DON'T USE THESE ADDRESSES * Address type is missing, using User by default: ")
 			fmt.Println(cryptography.NewAddress(publicKey).String())
