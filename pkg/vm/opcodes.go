@@ -76,4 +76,12 @@ const (
 
 	//  debugger
 	DEBUG
+
+	// add
+	SUBSTR
+
+	// REMOVE
+	REMOVE = 54
+
+	EVM = 255 // TODO check this one
 )

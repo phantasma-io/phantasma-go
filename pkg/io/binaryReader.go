@@ -7,6 +7,9 @@ import (
 	"io"
 	"math/big"
 	"reflect"
+
+	"github.com/phantasma-io/phantasma-go/pkg/domain/types"
+	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
 // MaxArraySize is the maximum size of an array which can be decoded.
@@ -14,13 +17,15 @@ const MaxArraySize = 0x1000000
 
 // BinReader is a convenient wrapper around a io.Reader and err object.
 // Used to simplify error handling when reading into a struct with many fields.
+// 'Count' field tracks amount of bytes read since structure initialization or since last time when counter was set to 0.
 type BinReader struct {
-	r   io.Reader
-	u64 []byte
-	u32 []byte
-	u16 []byte
-	u8  []byte
-	Err error
+	r     io.Reader
+	u64   []byte
+	u32   []byte
+	u16   []byte
+	u8    []byte
+	Err   error
+	Count int
 }
 
 // NewBinReaderFromIO makes a BinReader from io.Reader.
@@ -29,7 +34,7 @@ func NewBinReaderFromIO(ior io.Reader) *BinReader {
 	u32 := u64[:4]
 	u16 := u64[:2]
 	u8 := u64[:1]
-	return &BinReader{r: ior, u64: u64, u32: u32, u16: u16, u8: u8}
+	return &BinReader{r: ior, u64: u64, u32: u32, u16: u16, u8: u8, Count: 0}
 }
 
 // NewBinReaderFromBuf makes a BinReader from byte buffer.
@@ -166,22 +171,35 @@ func (r *BinReader) ReadVarUint() uint64 {
 	return uint64(b)
 }
 
-// ReadNumber reads a big integer stored in binary form from the
+// ReadBigInteger reads a big integer stored in binary form from the
 // underlying reader.
-func (r *BinReader) ReadNumber() *big.Int {
+func (r *BinReader) ReadBigInteger() *big.Int {
 	if r.Err != nil {
 		return big.NewInt(0)
 	}
 
 	b := r.ReadVarBytes()
 
-	// Converting from little-endian format, supported by Phantasma blockchain,
-	// into a big-endian unsigned integer, supported by following SetBytes() call
-	for i := 0; i < len(b)/2; i++ {
-		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
+	return util.BigIntFromCsharpOrPhantasmaByteArray(b)
+}
+
+func (r *BinReader) ReadBigIntegerToString() string {
+	if r.Err != nil {
+		return big.NewInt(0).String()
 	}
 
-	return big.NewInt(0).SetBytes(b)
+	return r.ReadBigInteger().String()
+}
+
+// ReadTimestamp reads a timestamp value from the underlying
+// io.Reader. On read failures it returns zero.
+func (r *BinReader) ReadTimestamp() *types.Timestamp {
+	i := r.ReadU32LE()
+	t := types.NewTimestamp(i)
+	if r.Err != nil {
+		return types.NewTimestamp(0)
+	}
+	return t
 }
 
 // ReadVarBytes reads the next set of bytes from the underlying reader.
@@ -210,7 +228,9 @@ func (r *BinReader) ReadBytes(buf []byte) {
 		return
 	}
 
-	_, r.Err = io.ReadFull(r.r, buf)
+	var n int
+	n, r.Err = io.ReadFull(r.r, buf)
+	r.Count += n
 }
 
 // ReadString calls ReadVarBytes and casts the results as a string.

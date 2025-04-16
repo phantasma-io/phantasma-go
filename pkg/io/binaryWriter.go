@@ -5,6 +5,9 @@ import (
 	"io"
 	"math/big"
 	"reflect"
+
+	"github.com/phantasma-io/phantasma-go/pkg/domain/types"
+	"github.com/phantasma-io/phantasma-go/pkg/util"
 )
 
 // BinWriter is a convenient wrapper around a io.Writer and err object.
@@ -141,20 +144,35 @@ func (w *BinWriter) WriteBytes(b []byte) {
 	_, w.Err = w.w.Write(b)
 }
 
-// WriteNumber writes a big integer in binary form into the underlying io.Writer.
-func (w *BinWriter) WriteNumber(n *big.Int) {
+// WriteBigInteger writes a big integer in binary form into the underlying io.Writer.
+func (w *BinWriter) WriteBigInteger(n *big.Int) {
 	if w.Err != nil {
 		return
 	}
 
-	b := n.Bytes()
-
-	// Converting to little-endian format, supported by Phantasma blockchain
-	for i := 0; i < len(b)/2; i++ {
-		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
-	}
+	b := util.BigIntToPhantasmaByteArray(n)
 
 	w.WriteVarBytes(b)
+}
+
+func (w *BinWriter) WriteBigIntegerFromString(n string) {
+	if w.Err != nil {
+		return
+	}
+
+	bi := big.NewInt(0)
+	bi.SetString(n, 10)
+
+	w.WriteBigInteger(bi)
+}
+
+// WriteTimestamp writes a timestamp in binary form into the underlying io.Writer.
+func (w *BinWriter) WriteTimestamp(t *types.Timestamp) {
+	if w.Err != nil {
+		return
+	}
+
+	w.WriteU32LE(t.Value)
 }
 
 // WriteVarBytes writes a variable length byte array into the underlying io.Writer.

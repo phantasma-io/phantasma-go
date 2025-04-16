@@ -197,6 +197,20 @@ func (a Address) BytesPrefixed() []byte {
 	return bytes.Join([][]byte{{34}, a.data}, []byte{})
 }
 
+func (a *Address) GetPublicKey() []byte {
+	if a.data == nil {
+		return []byte{}
+	}
+	if len(a.data) != Length {
+		panic("invalid address byte length")
+	}
+
+	p := make([]byte, 32)
+	copy(p, a.data[2:])
+
+	return p
+}
+
 // Serialize implements ther Serializable interface
 func (a *Address) Serialize(writer *io.BinWriter) {
 	writer.WriteVarBytes(a.data)

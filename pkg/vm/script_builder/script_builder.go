@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"slices"
 	"strconv"
 	"time"
 
@@ -103,11 +104,9 @@ func (s ScriptBuilder) EmitLoadNumberAsString(reg byte, toLoad *big.Int) ScriptB
 	return s
 }
 
-func (s ScriptBuilder) EmitLoadNumberAsBinary(reg byte, toLoad big.Int) ScriptBuilder {
+func (s ScriptBuilder) EmitLoadNumberAsBinary(reg byte, toLoad *big.Int) ScriptBuilder {
 	b := toLoad.Bytes()
-	for i := 0; i < len(b)/2; i++ {
-		b[i], b[len(b)-i-1] = b[len(b)-i-1], b[i]
-	}
+	slices.Reverse(b)
 	s.EmitLoad(reg, b, vm.Number)
 	return s
 }
@@ -220,7 +219,7 @@ func (s ScriptBuilder) loadIntoReg(dstReg byte, arg interface{}) {
 	default:
 		if arg != nil {
 			s.writer.Err = errors.New(fmt.Sprintf("unsupported type %s", e))
-			return
+			panic(s.writer.Err)
 		}
 	}
 }

@@ -162,7 +162,11 @@ func (a *AccountResult) GetTokenBalance(t TokenResult) *BalanceResult {
 		}
 	}
 
-	b := BalanceResult{"main", "0", t.Symbol, uint(t.Decimals), []string{}}
+	b := BalanceResult{Chain: "main", Amount: "0", Symbol: t.Symbol, Decimals: uint(t.Decimals), Ids: []string{}}
+
+	if a.Balances == nil {
+		a.Balances = []BalanceResult{}
+	}
 	a.Balances = append(a.Balances, b)
 
 	return &a.Balances[len(a.Balances)-1]
@@ -415,7 +419,13 @@ type ScriptResult struct {
 // DecodeResult() decodes HEX-encoded byte array result, stored in .Result field, into vm.VMObject structure
 func (s ScriptResult) DecodeResult() *vm.VMObject {
 	decoded, _ := hex.DecodeString(s.Result)
-	return io.Deserialize[*vm.VMObject](decoded, &vm.VMObject{})
+	return io.Deserialize[*vm.VMObject](decoded)
+}
+
+// DecodeResults() decodes HEX-encoded byte array result, stored in .Results array at given index, into vm.VMObject structure
+func (s ScriptResult) DecodeResults(index int) *vm.VMObject {
+	decoded, _ := hex.DecodeString(s.Results[index])
+	return io.Deserialize[*vm.VMObject](decoded)
 }
 
 // ArchiveResult comment

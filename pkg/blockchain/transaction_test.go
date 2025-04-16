@@ -70,7 +70,7 @@ func TestTxSerialization2(t *testing.T) {
 	assert.Equal(t, []byte{7, 109, 97, 105, 110, 110, 101, 116, 4, 109, 97, 105, 110, 3, 1, 2, 3, 79, 239, 196, 96, 0}, tx.BytesEx(false))
 
 	bytes := io.Serialize(tx)
-	newTx := io.Deserialize[*Transaction](bytes, &Transaction{})
+	newTx := io.Deserialize[*Transaction](bytes)
 
 	assert.Equal(t, tx.ChainName, newTx.ChainName)
 	assert.Equal(t, tx.NexusName, newTx.NexusName)

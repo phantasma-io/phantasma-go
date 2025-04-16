@@ -17,3 +17,26 @@ const (
 	Enum
 	Object
 )
+
+var VMTypeLookup = map[VMType]string{
+	None:      `None`,
+	Struct:    `Struct`,
+	Bytes:     `Bytes`,
+	Number:    `Number`,
+	String:    `String`,
+	Timestamp: `Timestamp`,
+	Bool:      `Bool`,
+	Enum:      `Enum`,
+	Object:    `Object`,
+}
+
+func (t VMType) FromString(vmType string) VMType {
+	for k1, s := range VMTypeLookup {
+		if s == vmType {
+
+			return k1
+		}
+	}
+
+	return None
+}

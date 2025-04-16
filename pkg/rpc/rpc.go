@@ -31,6 +31,13 @@ func NewRPCMainnet() PhantasmaRPC {
 	return NewRPC("https://pharpc1.phantasma.info/rpc")
 }
 
+// NewRPCSetMainnet returns a new set of RPC clients
+func NewRPCSetMainnet() []PhantasmaRPC {
+	return []PhantasmaRPC{NewRPC("https://pharpc1.phantasma.info/rpc"),
+		NewRPC("https://pharpc2.phantasma.info/rpc"),
+		NewRPC("https://pharpc3.phantasma.info/rpc") /*,NewRPC("https://pharpc4.phantasma.info/rpc")*/}
+}
+
 // NewRPCTestnet returns a new testnet RPC client
 func NewRPCTestnet() PhantasmaRPC {
 	return NewRPC("https://testnet.phantasma.info/rpc")
@@ -124,7 +131,26 @@ func (rpc PhantasmaRPC) GetAccount(address string) (resp.AccountResult, error) {
 	return account, nil
 }
 
+// Deprecated: Long execution time and possibility of inconsistent result
+// GetAccountEx returns current account state and list of all txes, including latest tx for this account (last in tx list)
+func (rpc PhantasmaRPC) GetAccountEx(address string) (resp.AccountResult, error) {
+	var account resp.AccountResult
+	result, err := rpc.client.Call(context.Background(), "getAccount", address, true)
+
+	if err := checkError(err, result.Error); err != nil {
+		return resp.AccountResult{}, err
+	}
+
+	err = result.GetObject(&account)
+	if err != nil {
+		return resp.AccountResult{}, err
+	}
+
+	return account, nil
+}
+
 // GetAddressTransactions Returns list of transactions for given address
+// Transactions are ordered from newer to older
 func (rpc PhantasmaRPC) GetAddressTransactions(address string, page int, pageSize int) (resp.PaginatedResult[resp.AddressTransactionsResult], error) {
 	var addressTxs resp.PaginatedResult[resp.AddressTransactionsResult]
 	result, err := rpc.client.Call(context.Background(), "getAddressTransactions", address, page, pageSize)
@@ -196,6 +222,22 @@ func (rpc PhantasmaRPC) GetBlockHeight(chainName string) (*big.Int, error) {
 
 	height, _ := big.NewInt(0).SetString(resultValue, 10)
 	return height, nil
+}
+
+func (rpc PhantasmaRPC) GetContract(name, chainName string) (resp.ContractResult, error) {
+	var contract resp.ContractResult
+	result, err := rpc.client.Call(context.Background(), "getContract", chainName, name)
+
+	if err := checkError(err, result.Error); err != nil {
+		return resp.ContractResult{}, err
+	}
+
+	err = result.GetObject(&contract)
+	if err != nil {
+		return resp.ContractResult{}, err
+	}
+
+	return contract, nil
 }
 
 // InvokeRawScript comment
@@ -286,6 +328,22 @@ func (rpc PhantasmaRPC) GetTokens(extended bool) ([]resp.TokenResult, error) {
 		return txResult, fmt.Errorf(errorResult.Error)
 	}
 	return txResult, nil
+}
+
+// GetTokensAsMap returns chain tokens map where token symbol is used as a key
+func (rpc PhantasmaRPC) GetTokensAsMap(extended bool) (map[string]resp.TokenResult, error) {
+	result, err := rpc.GetTokens(extended)
+	if err != nil {
+		return nil, err
+	}
+
+	tokensMap := map[string]resp.TokenResult{}
+
+	for _, t := range result {
+		tokensMap[t.Symbol] = t
+	}
+
+	return tokensMap, nil
 }
 
 // GetToken comment

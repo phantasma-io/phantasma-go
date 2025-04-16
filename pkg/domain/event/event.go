@@ -156,6 +156,10 @@ func (k EventKind) IsTokenEvent() bool {
 	return k == TokenBurn || k == TokenClaim || k == TokenMint || k == TokenReceive || k == TokenSend || k == TokenStake
 }
 
+func (k EventKind) IsMarketEvent() bool {
+	return k == OrderCreated || k == OrderCancelled || k == OrderFilled || k == OrderClosed || k == OrderBid
+}
+
 const (
 	Fixed   TypeAuction = 0
 	Classic TypeAuction = 1
@@ -177,14 +181,14 @@ type TokenEventData struct {
 // Serialize implements ther Serializable interface
 func (te *TokenEventData) Serialize(writer *io.BinWriter) {
 	writer.WriteString(te.Symbol)
-	writer.WriteVarBytes(te.Value.Bytes())
+	writer.WriteBigInteger(te.Value)
 	writer.WriteString(te.ChainName)
 }
 
 // Deserialize implements ther Serializable interface
 func (te *TokenEventData) Deserialize(reader *io.BinReader) {
 	te.Symbol = reader.ReadString()
-	te.Value = reader.ReadNumber()
+	te.Value = reader.ReadBigInteger()
 	te.ChainName = reader.ReadString()
 }
 
@@ -198,10 +202,30 @@ type InfusionEventData struct {
 type MarketEventData struct {
 	BaseSymbol  string
 	QuoteSymbol string
-	ID          big.Int
-	Price       big.Int
-	EndPrice    big.Int
+	ID          *big.Int
+	Price       *big.Int
+	EndPrice    *big.Int
 	Type        TypeAuction
+}
+
+// Serialize implements ther Serializable interface
+func (d *MarketEventData) Serialize(writer *io.BinWriter) {
+	writer.WriteString(d.BaseSymbol)
+	writer.WriteString(d.QuoteSymbol)
+	writer.WriteBigInteger(d.ID)
+	writer.WriteBigInteger(d.Price)
+	writer.WriteBigInteger(d.EndPrice)
+	writer.WriteB(byte(d.Type))
+}
+
+// Deserialize implements ther Serializable interface
+func (d *MarketEventData) Deserialize(reader *io.BinReader) {
+	d.BaseSymbol = reader.ReadString()
+	d.QuoteSymbol = reader.ReadString()
+	d.ID = reader.ReadBigInteger()
+	d.Price = reader.ReadBigInteger()
+	d.EndPrice = reader.ReadBigInteger()
+	d.Type = TypeAuction(reader.ReadU32LE())
 }
 
 type ChainValueEventData struct {

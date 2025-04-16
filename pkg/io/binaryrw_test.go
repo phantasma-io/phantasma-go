@@ -492,11 +492,11 @@ func readWriteNumberTest(t *testing.T, numberStr string) {
 	n, _ := big.NewInt(0).SetString(numberStr, 10)
 
 	w := NewBufBinWriter()
-	w.WriteNumber(n)
+	w.WriteBigInteger(n)
 
 	r := NewBinReaderFromBuf(w.Bytes())
 
-	n2 := r.ReadNumber()
+	n2 := r.ReadBigInteger()
 
 	require.NoError(t, r.Err)
 	require.Equal(t, n, n2)
@@ -507,5 +507,19 @@ func TestBinRW_ReadWriteNumber(t *testing.T) {
 	readWriteNumberTest(t, "783269426398462946992340273")
 	readWriteNumberTest(t, "0")
 	readWriteNumberTest(t, "1")
+	readWriteNumberTest(t, "255")
+	readWriteNumberTest(t, "256")
+	readWriteNumberTest(t, "257")
 	readWriteNumberTest(t, "99999999999999999999999999999999999999999999999999")
+}
+
+func TestBinRW_ReadWriteNegativeNumber(t *testing.T) {
+	readWriteNumberTest(t, "-1000000")
+	readWriteNumberTest(t, "-783269426398462946992340273")
+	readWriteNumberTest(t, "-0")
+	readWriteNumberTest(t, "-1")
+	readWriteNumberTest(t, "-255")
+	readWriteNumberTest(t, "-256")
+	readWriteNumberTest(t, "-257")
+	readWriteNumberTest(t, "-99999999999999999999999999999999999999999999999999")
 }
