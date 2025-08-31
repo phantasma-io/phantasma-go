@@ -13,10 +13,10 @@ import (
 	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
 
-func unstakeSoulToken(address string, tokenAmount *big.Int) {
+func unstakeSoulToken(address crypto.Address, tokenAmount *big.Int) {
 	// build script
 	sb := scriptbuilder.BeginScript().
-		AllowGas(address, crypto.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
+		AllowGas(address, crypto.NullAddress(), big.NewInt(100000), big.NewInt(21000)).
 		Unstake(address, tokenAmount).
 		SpendGas(address)
 	script := sb.EndScript()

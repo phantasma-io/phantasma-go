@@ -13,10 +13,10 @@ import (
 	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
 
-func stakeSoulToken(address string, tokenAmount *big.Int) {
+func stakeSoulToken(address crypto.Address, tokenAmount *big.Int) {
 	// Build script
 	sb := scriptbuilder.BeginScript().
-		AllowGas(address, crypto.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
+		AllowGas(address, crypto.NullAddress(), big.NewInt(100000), big.NewInt(21000)).
 		Stake(address, tokenAmount).
 		SpendGas(address)
 	script := sb.EndScript()
