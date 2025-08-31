@@ -87,7 +87,8 @@ func sendFungibleTokens() {
 	_, tokenAmountStr := PromptBigFloatInput("Enter amount:", big.NewFloat(0), balances[tokenIndex].ConvertDecimalsToFloat())
 	tokenAmount := util.ConvertDecimalsBack(tokenAmountStr, int(balances[tokenIndex].Decimals))
 
-	sendFungibleToken(tokenSymbol, to, tokenAmount)
+	toAddress, _ := cryptography.FromString(to)
+	sendFungibleToken(tokenSymbol, toAddress, tokenAmount)
 }
 
 func staking() {
@@ -118,9 +119,9 @@ func staking() {
 	tokenAmount := util.ConvertDecimalsBack(tokenAmountStr, int(t.Decimals))
 
 	if stakeMode {
-		stakeSoulToken(keyPair.Address().String(), tokenAmount)
+		stakeSoulToken(keyPair.Address(), tokenAmount)
 	} else {
-		unstakeSoulToken(keyPair.Address().String(), tokenAmount)
+		unstakeSoulToken(keyPair.Address(), tokenAmount)
 	}
 }
 

@@ -13,12 +13,12 @@ import (
 	scriptbuilder "github.com/phantasma-io/phantasma-go/pkg/vm/script_builder"
 )
 
-func sendFungibleToken(tokenSymbol, to string, tokenAmount *big.Int) {
+func sendFungibleToken(tokenSymbol string, to cryptography.Address, tokenAmount *big.Int) {
 	// Build script
 	sb := scriptbuilder.BeginScript()
-	script := sb.AllowGas(keyPair.Address().String(), cryptography.NullAddress().String(), big.NewInt(100000), big.NewInt(21000)).
-		TransferTokens(tokenSymbol, keyPair.Address().String(), to, tokenAmount).
-		SpendGas(keyPair.Address().String()).
+	script := sb.AllowGas(keyPair.Address(), cryptography.NullAddress(), big.NewInt(100000), big.NewInt(21000)).
+		TransferTokens(tokenSymbol, keyPair.Address(), to, tokenAmount).
+		SpendGas(keyPair.Address()).
 		EndScript()
 
 	// Build transaction
