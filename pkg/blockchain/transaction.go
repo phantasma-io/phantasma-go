@@ -191,7 +191,7 @@ func TxStateIsSuccess(state string) bool {
 }
 
 func TxStateIsFault(state string) bool {
-	if strings.ToUpper(state) == "FAULT" {
+	if strings.ToUpper(state) == "FAULT" || strings.ToUpper(state) == "BREAK" {
 		return true
 	} else {
 		return false
