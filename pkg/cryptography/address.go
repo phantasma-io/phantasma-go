@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/phantasma-io/phantasma-go/pkg/encoding/base58"
 	"github.com/phantasma-io/phantasma-go/pkg/io"
@@ -84,6 +85,11 @@ func NullAddress() Address {
 
 // FromString creates an instance of an Address from a string
 func FromString(s string) (Address, error) {
+
+	s = strings.TrimSpace(s)
+	if len(s) < 2 {
+		return Address{}, fmt.Errorf("Invalid address string: empty or too short")
+	}
 
 	data, err := base58.Decode(s[1:])
 	if err != nil {
